@@ -1,0 +1,43 @@
+ETHNICITY_CHOICES = (
+    ('America', (
+            (1, 'Native North American'),
+            (2, 'Central American'),
+            (3, 'Caribbean'),
+            (4, 'South American'),
+        ),
+    ),
+    ('Europe', (
+            (5, 'Western European'),
+            (6, 'Scandinavian'),
+            (7, 'Mediterranean'),
+            (8, 'Eastern European'),
+        ),        
+    ),
+    ('Africa', (
+            (9, 'North African'),
+            (10, 'Central African'),
+            (11, 'South African'),
+        ),        
+    ),
+    ('Asia', (
+            (12, 'East Asian'),
+            (13, 'Southeast Asian'),
+            (14, 'South Asian'),
+            (15, 'Middle Eastern'),
+        )        
+    ),
+    ('Oceania', (
+            (16, 'Australasian'),
+        )        
+    ),
+    (17, 'Mixed'),
+    (18, 'Other'),
+)
+
+HAIR_COLOR_CHOICES = (
+    
+)
+
+EYE_COLOR_CHOICES = (
+    
+)

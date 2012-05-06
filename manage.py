@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!venv/bin/python
 
 # When project_template is used as the actual project during Mezzanine
 # development, insert the development path into sys.path so that the

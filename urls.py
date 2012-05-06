@@ -49,6 +49,11 @@ urlpatterns = patterns("",
 
     # url("^$", "mezzanine.blog.views.blog_post_list", name="home"),
 
+    url(r'^client/', include('shift.client.urls')),
+    url(r'^client-manager/', include('shift.clientmanager.urls')),
+    url(r'^shift-leader/', include('shift.shiftleader.urls')),
+    url(r'^talent-manager/', include('shift.talentmanager.urls')),                      
+
     # MEZZANINE'S URLS
     # ----------------
     # Note: ADD YOUR OWN URLPATTERNS *ABOVE* THE LINE BELOW.
