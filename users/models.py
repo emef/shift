@@ -12,7 +12,6 @@ class Contractor(models.Model):
     default_photo = models.ForeignKey('ContractorPhoto', related_name='default_photo', null=True)
     lat = models.FloatField(null=True)
     lng = models.FloatField(null=True)
-    attributes = models.OneToOneField('AttributeSet')
 
     def __unicode__(self):
         return 'Contractor<%s %s>' % (self.user.first_name, self.user.last_name)
@@ -29,23 +28,24 @@ class ContractorEducation(models.Model):
     description = models.CharField(max_length=300)
 
 class AttributeSet(models.Model):
-    height = models.FloatField(null=True)
-    weight = models.FloatField(null=True)
-    bust_chest = models.FloatField(null=True)
-    waist = models.FloatField(null=True)
-    hips = models.FloatField(null=True)
-    inseam = models.FloatField(null=True)
-    dress_size = models.IntegerField(null=True)
+    contractor = models.OneToOneField('Contractor', related_name='attributes')
+    height = models.FloatField(null=True, blank=True)
+    weight = models.FloatField(null=True, blank=True)
+    bust_chest = models.FloatField(null=True, blank=True)
+    waist = models.FloatField(null=True, blank=True)
+    hips = models.FloatField(null=True, blank=True)
+    inseam = models.FloatField(null=True, blank=True)
+    dress_size = models.IntegerField(null=True, blank=True)
     cup_size = models.CharField(max_length=20, blank=True)
     ethnicity = models.IntegerField(choices=ETHNICITY_CHOICES, blank=True)
     hair_color = models.IntegerField(choices=HAIR_COLOR_CHOICES, blank=True)
-    hair_length = models.FloatField(null=True)
+    hair_length = models.FloatField(null=True, blank=True)
     eye_color = models.IntegerField(choices=EYE_COLOR_CHOICES, blank=True)
-    nude_ready = models.NullBooleanField(null=True)
-    swim_ready = models.NullBooleanField(null=True)
-    lingerie_ready = models.NullBooleanField(null=True)
-    liquor_ready = models.NullBooleanField(null=True)
-    gaming_ready = models.NullBooleanField(null=True)
+    nude_ready = models.NullBooleanField(null=True, blank=True)
+    swim_ready = models.NullBooleanField(null=True, blank=True)
+    lingerie_ready = models.NullBooleanField(null=True, blank=True)
+    liquor_ready = models.NullBooleanField(null=True, blank=True)
+    gaming_ready = models.NullBooleanField(null=True, blank=True)
 
 
 class Client(models.Model):

@@ -2,7 +2,7 @@ from pprint import pprint
 from django import forms
 from django.contrib import admin
 from django.contrib.auth.models import User
-from shift.users.models import Client, Contractor, Manager, ClientContactInfo
+from shift.users.models import Client, Contractor, Manager, ClientContactInfo, ContractorPhoto, AttributeSet
 
 class UserAdminForm(forms.ModelForm):
     first_name = forms.CharField()
@@ -25,6 +25,9 @@ class UserAdminForm(forms.ModelForm):
         
     def clean(self):
         cleaned_data = super(UserAdminForm, self).clean()
+        if not self.is_valid():
+            return cleaned_data
+        
         try:
             if self.instance.user_id is None:
                 user = User(username = cleaned_data['username'],
@@ -52,9 +55,10 @@ class UserAdminForm(forms.ModelForm):
 class ClientAdminForm(UserAdminForm):
     class Meta:
         model = Client
-    
+        
 class ContactInline(admin.StackedInline):
     model = ClientContactInfo
+    extra = 1
     
 class ClientAdmin(admin.ModelAdmin):
     exclude = ('user',)
@@ -85,13 +89,26 @@ class ManagerAdmin(admin.ModelAdmin):
         }),
     )
 
+class PhotoInline(admin.StackedInline):
+    model = ContractorPhoto
+    extra = 3
+
+class AttributesInline(admin.StackedInline):
+    model = AttributeSet
+    classes = ('collapse open',)
+    inline_classes = ('collapse open', 'hi')
+    
 class ContractorAdminForm(UserAdminForm):
     class Meta:
         model = Contractor
+        extra = 0
         
 class ContractorAdmin(admin.ModelAdmin):
+    class Media:
+        js = ('mezzanine/js/jquery-1.7.1.min.js', 'js/admin_photos.js',)
     exclude = ('user',)
     form = ContractorAdminForm
+    inlines = [PhotoInline, AttributesInline]
     fieldsets = (
         ('User Info', {
                 'fields': ('username', 'password', 'first_name', 'last_name'),
