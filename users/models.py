@@ -10,9 +10,12 @@ class Contractor(models.Model):
     payment_email = models.EmailField()
     phone = models.CharField(max_length=20)
     default_photo = models.ForeignKey('ContractorPhoto', related_name='default_photo', null=True)
-    lat = models.FloatField()
-    lng = models.FloatField()
+    lat = models.FloatField(null=True)
+    lng = models.FloatField(null=True)
     attributes = models.OneToOneField('AttributeSet')
+
+    def __unicode__(self):
+        return 'Contractor<%s %s>' % (self.user.first_name, self.user.last_name)
 
 class ContractorPhoto(models.Model):
     contractor = models.ForeignKey('Contractor', related_name='photos')
@@ -49,10 +52,13 @@ class Client(models.Model):
     user = models.OneToOneField(User)
     manager = models.ForeignKey('Manager', null=True, related_name='clients')
     group_name = models.CharField(max_length=250)
-    primary_contact = models.ForeignKey('ClientContactInfo', related_name='primary_contact')
+
+    def __unicode__(self):
+        return 'Client<%s %s>' % (self.user.first_name, self.user.last_name)
     
 class ClientContactInfo(models.Model):
     client = models.ForeignKey('Client', related_name='contacts')
+    is_primary = models.BooleanField()
     name = models.CharField(max_length=150)
     role = models.CharField(max_length=100, blank=True)
     email = models.EmailField()
@@ -60,9 +66,17 @@ class ClientContactInfo(models.Model):
     address = models.CharField(max_length=300, blank=True)
     industry = models.CharField(max_length=150, blank=True)
     notes = models.CharField(max_length=300, blank=True)
-    
+
+    def __unicode__(self):
+        return 'Contact<%s>' % self.name
+
 class Manager(models.Model):
     user = models.OneToOneField(User)
     email = models.EmailField()
     phone = models.CharField(max_length=20)
+    
+    def __unicode__(self):
+        return 'Manager<%s %s>' % (self.user.first_name, self.user.last_name)
+    
+
     

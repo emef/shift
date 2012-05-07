@@ -1,0 +1,6 @@
+from django.contrib import admin
+from shift.users.models import Client, Contractor, Manager
+
+admin.site.register(Client)
+admin.site.register(Contractor)
+admin.site.register(Manager)
