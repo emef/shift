@@ -1,0 +1,8 @@
+{% extends "shiftleader/shiftleader_base.html" %}
+
+{% block extra_head %}
+{{ block.super }}
+<script type="text/javascript">
+  nav_set("shiftleader");
+</script>
+{% endblock %}

@@ -1,0 +1,12 @@
+{% extends "talentmanager/talentmanager_base.html" %}
+
+{% block main %}
+
+<form method="POST" action="/talent-manager/upload/" enctype="multipart/form-data">
+  {% csrf_token %}
+  <h3>Upload Contractors (.xls or .xlsx)</h3>
+  {{ form.as_table }}
+  <br />
+  <input type="submit" name="submit" value="upload" />
+</form>
+{% endblock %}

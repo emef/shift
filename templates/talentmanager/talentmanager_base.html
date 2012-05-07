@@ -1,0 +1,11 @@
+{% extends "admin_base.html" %}
+
+{% block breadcrumb_menu %}
+{{ block.super }}
+<a href="/talent-manager/">Talent Manager</a>
+<span class="divider">/</span>
+{% if page_info.page %}
+<a href="{{page_info.path}}">{{page_info.title}}</a>
+<span class="divider">/</span>
+{% endif %}
+{% endblock %}

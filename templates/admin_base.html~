@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% load user_tags %}
+
+{% block extra_head %}
+<script src="{{STATIC_URL}}js/shiftbase.js" type="text/javascript" ></script>
+<script type="text/javascript">
+  nav_set("{{page_info.section}}", "{{page_info.page}}");
+</script>
+{% endblock %}
+
+{% block title %} {{page_info.title}} {% endblock %}
+
+{% block nav %}
+<ul class="unstyled tree-menu-level-0">
+  <li class="first">
+    <a href="/">Home</a>
+  </li>
+  {% if user|in_group:"shiftleader" %}
+  <li id="shiftleader-nav">
+    <a href="/shift-leader/">Shift Leader
+    <ul class="unstyled tree-menu-level-1">
+      <li id="openjobs_list-nav" class="first">
+        <a href="/shift-leader/open-jobs">All Open Jobs</a>
+      </li>
+      <li id="openjobs_calendar-nav">
+        <a href="/shift-leader/open-jobs/calendar/">Calendar View</a>
+      </li>
+      <li id="openjobs_gantt-nav">
+        <a href="/shift-leader/open-jobs/gantt/">Gantt Chart</a>
+      </li>
+      <li id="contractors_search-nav">
+        <a href="/shift-leader/contractors/search/">Search Contractors</a>
+      </li>
+      <li id="unassigned_jobs-nav">
+        <a href="/shift-leader/unassigned-jobs/">Unassigned Jobs</a>
+      </li>
+      <li id="completed_jobs-nav">
+        <a href="/shift-leader/completed-jobs/">Completed Jobs</a>
+      </li>
+    </ul>
+  </li>
+  {% endif %}
+  {% if user|in_group:"talentmanager" %}
+  <li id="talentmanager-nav">
+    <a href="/talent-manager/">Talent Manager</a>
+  </li>
+  {% endif %}
+</ul>
+{% endblock %}
+
+{% block main %}
+{{ page_info }}
+{% endblock main %}
