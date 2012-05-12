@@ -1,1 +1,17 @@
 {% extends "clientmanager/clientmanager_base.html" %}
+
+{% block main %}
+
+<h2>Available Jobs for Updating</h2>
+
+{% for job in jobs %}
+
+<div>
+  <a href="/client-manager/job/edit/{{job.id}}/">
+    {{ job.title }}
+  </a>
+</div>
+
+{% endfor %}
+
+{% endblock %}

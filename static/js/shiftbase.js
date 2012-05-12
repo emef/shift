@@ -34,3 +34,30 @@ register_page('clientmanager', 'job_new');
 register_page('clientmanager', 'job_open');
 register_page('clientmanager', 'job_edit');
 register_page('clientmanager', 'job_status');
+
+function mk_toggleable(parent, open) {
+    var title = $(parent).find("> div:first-child");
+    var data = title.next();
+    var toggle_on, toggle_off;
+	
+    toggle_on = function() {
+	data.show();
+	title.bind('click', toggle_off);
+    }
+
+    toggle_off = function() {
+	data.hide();
+	title.click('click', toggle_on);
+    }
+
+    if (open)
+	toggle_on();
+    else
+	toggle_off();
+}
+
+$(document).ready(function() {
+    $(".toggle-able").each(function() {
+	mk_toggleable(this)
+    });
+});

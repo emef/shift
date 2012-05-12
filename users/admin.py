@@ -1,8 +1,8 @@
 from pprint import pprint
 from django import forms
 from django.contrib import admin
-from django.contrib.auth.models import User
-from shift.users.models import Client, Contractor, Manager, ClientContactInfo, ContractorPhoto, AttributeSet
+from django.contrib.auth.models import User, Group
+from shift.users.models import *
 
 class UserAdminForm(forms.ModelForm):
     first_name = forms.CharField()
@@ -50,7 +50,7 @@ class UserAdminForm(forms.ModelForm):
         self.instance.user_id = user.id
         
         return cleaned_data
-
+     
     
 class ClientAdminForm(UserAdminForm):
     class Meta:
@@ -73,9 +73,26 @@ class ClientAdmin(admin.ModelAdmin):
         }),
     )
 
+MANAGER_CHOICES = (
+    ('clientmanager', 'Client Manager',),
+    ('shiftleader', 'Shift Leader',),
+    ('talentmanager', 'Talent Manager',),
+)
+    
 class ManagerAdminForm(UserAdminForm):
+    manager_roles = forms.MultipleChoiceField(choices=MANAGER_CHOICES)
     class Meta:
         model = Manager
+
+    def clean(self):
+        cleaned_data = super(ManagerAdminForm, self).clean()
+        user = self.instance.user
+        user.groups.all().delete()
+        for role in cleaned_data['manager_roles']:
+            print role
+            user.groups.add(Group.objects.get(name=role))
+        user.save()
+        return cleaned_data
         
 class ManagerAdmin(admin.ModelAdmin):
     exclude = ('user',)
@@ -86,6 +103,9 @@ class ManagerAdmin(admin.ModelAdmin):
         }),
         (None, {
             'fields': ('email', 'phone',),
+        }),
+        (None, {
+            'fields': ('manager_roles',),
         }),
     )
 
@@ -106,6 +126,7 @@ class ContractorAdminForm(UserAdminForm):
 class ContractorAdmin(admin.ModelAdmin):
     class Media:
         js = ('mezzanine/js/jquery-1.7.1.min.js', 'js/admin_photos.js',)
+        
     exclude = ('user',)
     form = ContractorAdminForm
     inlines = [PhotoInline, AttributesInline]

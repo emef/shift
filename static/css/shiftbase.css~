@@ -1,0 +1,5 @@
+.errorlist {
+    color: #BF3030;
+    font-size: 11px;
+    line-height: 16px;
+    }

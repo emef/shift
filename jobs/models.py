@@ -19,29 +19,37 @@ class Job(models.Model):
     client = models.ForeignKey(User)
     title = models.CharField(max_length=150)
     description = models.TextField()
-    amount_quoted = models.DecimalField(max_digits=12, decimal_places=2)
-    amount_received = models.DecimalField(max_digits=12, decimal_places=2)
+    amount_quoted = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    amount_received = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
     status = models.IntegerField(max_length=100, choices=JOB_STATUS_CHOICES, default=1)
+
+    def __unicode__(self):
+        return 'Job<{0}>'.format(self.title)
 
 class JobFile(models.Model):
     job = models.ForeignKey('Job', related_name='files')
     file = models.FileField(upload_to='jobfiles')
 
 class Shift(models.Model):
-    job = models.ForeignKey('Job')
+    job = models.ForeignKey('Job', related_name='shifts')
     title = models.CharField(max_length=150)
     start = models.DateTimeField()
     end = models.DateTimeField()
-    pays = models.DecimalField(max_digits=12, decimal_places=2)
+    pays = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
     location = models.CharField(max_length=250, blank=True)
-    lat = models.FloatField()
-    lng = models.FloatField()
+    lat = models.FloatField(null=True, blank=True)
+    lng = models.FloatField(null=True, blank=True)
     # filters...
+
+    def __unicode__(self):
+        return 'Shift<{0}>'.format(self.title)
 
 class ShiftAssignment(models.Model):
     contractor = models.ForeignKey(User)
     shift = models.ForeignKey('Shift')
     standby = models.BooleanField()
+    on_time = models.NullBooleanField()
+    
 
 
 

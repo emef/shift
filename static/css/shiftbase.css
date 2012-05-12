@@ -1,0 +1,63 @@
+.errorlist {
+    color: #BF3030;
+    font-size: 11px;
+    line-height: 16px;
+}
+
+.error input, .error select, .errors input, .errors select {
+    border: 1px solid 
+    #BF3030;
+}
+
+a.deletelink:link, a.deletelink:visited {
+    background: -webkit-gradient(linear, left top, left bottom, from(#BF3030), to(#AD2B2B));
+    color: white;
+    padding: 1px 7px 1px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+    font-weight: bold;
+}
+
+.shift-aligned label {
+    color: #08C;
+    display: block;
+    float: left;
+    padding: 0 10px 6px 0;
+    width: 120px;
+}
+
+.shift-aligned ul {
+    list-style-type: none;
+    display: block;
+    vertical-align: baseline;
+    margin: 0px 0px;
+    padding-left: 130px;
+}
+
+.shift-aligned {
+    padding: 10px 10px;
+    background: rgba(220, 220, 220, 0.1);
+    margin-bottom: 20px;
+    line-height: 170%;
+    border: 1px solid #EEE;
+    border-radius: 5px;
+}
+
+.toggle-able > *:first-child {
+    color: #08C;
+    cursor: pointer;
+    border-bottom: 1px dashed #EEE;
+    padding-bottom: 10px;
+    font-weight: bold;
+}
+
+.toggle-able a.deletelink {
+    float: right
+}
+
+.toggle-able > *:first-child + * {
+    margin-top: 10px;
+}
+			      
+			      

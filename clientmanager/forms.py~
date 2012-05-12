@@ -1,0 +1,10 @@
+from django import forms
+from shift.jobs.models import Job, Shift
+
+class JobForm(forms.ModelForm):
+    class Meta:
+        model = Job
+
+class ShiftForm(forms.ModelForm):
+    class Meta:
+        model = Shift

@@ -15,6 +15,19 @@
   <li class="first">
     <a href="/">Home</a>
   </li>
+  {% if user|in_group:"clientmanager" %}
+  <li id="clientmanager-nav">
+    <a href="/client-manager/">Client Manager</a>
+    <ul class="unstyled tree-menu-level-1">
+      <li id="job_new-nav" class="first">
+        <a href="/client-manager/job/new/">Create Job</a>
+      </li>
+      <li id="job_open-nav" class="first">
+        <a href="/client-manager/job/open/">Update Job</a>
+      </li>
+    </ul>
+  </li>
+  {% endif %}
   {% if user|in_group:"shiftleader" %}
   <li id="shiftleader-nav">
     <a href="/shift-leader/">Shift Leader
@@ -43,16 +56,6 @@
   {% if user|in_group:"talentmanager" %}
   <li id="talentmanager-nav">
     <a href="/talent-manager/">Talent Manager</a>
-  </li>
-  {% endif %}
-  {% if user|in_group:"clientmanager" %}
-  <li id="clientmanager-nav">
-    <a href="/client-manager/">Client Manager</a>
-    <ul class="unstyled tree-menu-level-1">
-      <li id="job_new-nav" class="first">
-        <a href="/client-manager/job/new/">Create Job</a>
-      </li>
-    </ul>
   </li>
   {% endif %}
 </ul>
