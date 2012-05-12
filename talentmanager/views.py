@@ -1,14 +1,14 @@
 from django.http import Http404
-from shift import render_page, admin_page
+from shift import render_page, admin_required
 from shift.talentmanager.forms import ExcelUploadForm
 
-@admin_page('talentmanager')
+@admin_required('talentmanager')
 def control_panel(request):
     form = ExcelUploadForm()
     data = {'form': form}
     return render_page(request, 'talentmanager/control_panel.html', data)
 
-@admin_page('talentmanager')
+@admin_required('talentmanager')
 def upload(request):
     if request.method != 'POST':
         raise Http404

@@ -1,6 +1,7 @@
 from django.template import RequestContext
 from django.shortcuts import render_to_response
 from django.http import HttpResponse, Http404
+from django.contrib.auth.decorators import login_required
 
 import simplejson as json
 
@@ -23,8 +24,9 @@ def extract(obj, *args):
 def json_response(resp):
     return HttpResponse(json.dumps(resp), mimetype="application/json")
 
-def admin_page(group=None):
+def admin_required(group=None):
     def _dec(view_func):
+        @login_required
         def _view(request, *args, **kwargs):
             if group and not group in set([g.name for g in request.user.groups.all()]):
                 raise Http404

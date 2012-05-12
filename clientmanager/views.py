@@ -2,17 +2,17 @@ from pprint import pprint
 
 from django.http import Http404
 from django.shortcuts import redirect, get_object_or_404
-from shift import render_page, admin_page
+from shift import render_page, admin_required
 from shift.clientmanager.forms import JobForm, ShiftForm, mk_attribute_form
 from shift.jobs.models import Job, Shift
 from shift.users.models import AttributeSet
 
-@admin_page('clientmanager')
+@admin_required('clientmanager')
 def control_panel(request):
     #list completed jobs awaiting finalization
     return render_page(request, 'clientmanager/control_panel.html')
 
-@admin_page('clientmanager')
+@admin_required('clientmanager')
 def job_new(request):
     if request.method == 'POST':
         form = JobForm(request.POST)
@@ -25,12 +25,12 @@ def job_new(request):
     data = {'form': form}
     return render_page(request, 'clientmanager/job_new.html', data)
 
-@admin_page('clientmanager')
+@admin_required('clientmanager')
 def job_open(request):
     data = {'jobs': Job.objects.all()}
     return render_page(request, 'clientmanager/job_open.html', data)
 
-@admin_page('clientmanager')
+@admin_required('clientmanager')
 def job_edit(request, job_id):
     job = get_object_or_404(Job, pk=job_id)
 
@@ -53,7 +53,7 @@ def job_edit(request, job_id):
             'attribute_form': att_form}
     return render_page(request, 'clientmanager/job_edit.html', data)
 
-@admin_page('clientmanager')
+@admin_required('clientmanager')
 def job_status(request, job_id):
     return render_page(request, 'clientmanager/job_status.html')
 

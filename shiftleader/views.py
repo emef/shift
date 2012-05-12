@@ -1,56 +1,56 @@
-from shift import render_page, admin_page
+from shift import render_page, admin_required
 
-@admin_page('shiftleader')
+@admin_required('shiftleader')
 def control_panel(request):
     print request.page_info
     return render_page(request, 'shiftleader/control_panel.html')
 
-@admin_page('shiftleader')
+@admin_required('shiftleader')
 def open_jobs_list(request):
     print 'hi'
     return render_page(request, 'shiftleader/open_jobs_list.html')
 
-@admin_page('shiftleader')
+@admin_required('shiftleader')
 def open_jobs_calendar(request):
     return render_page(request, 'shiftleader/open_jobs_calendar.html')
 
-@admin_page('shiftleader')
+@admin_required('shiftleader')
 def open_jobs_gantt(request):
     return render_page(request, 'shiftleader/open_jobs_gantt.html')
 
-@admin_page('shiftleader')
+@admin_required('shiftleader')
 def open_jobs_job(request, job_id):
     return render_page(request, 'shiftleader/open_jobs_job.html')
 
-@admin_page('shiftleader')
+@admin_required('shiftleader')
 def open_jobs_shift(request, shift_id):
     return render_page(request, 'shiftleader/open_jobs_shift.html')
 
-@admin_page('shiftleader')
+@admin_required('shiftleader')
 def contractors_search(request, query):
     return render_page(request, 'shiftleader/contractors_search.html')
 
-@admin_page('shiftleader')
+@admin_required('shiftleader')
 def contractors_detail(request, contractor_id):
     return render_page(request, 'shiftleader/contractors_detail.html')
 
-@admin_page('shiftleader')
+@admin_required('shiftleader')
 def unassigned_jobs(request):
     return render_page(request, 'shiftleader/unassigned_jobs.html')
 
-@admin_page('shiftleader')
+@admin_required('shiftleader')
 def unassigned_detail(request, job_id):
     return render_page(request, 'shiftleader/unassigned_detail.html')
 
-@admin_page('shiftleader')
+@admin_required('shiftleader')
 def unassigned_assign(request, shift_id):
     return render_page(request, 'shiftleader/unassigned_assign.html')
 
-@admin_page('shiftleader')
+@admin_required('shiftleader')
 def completed_jobs(request):
     return render_page(request, 'shiftleader/completed_jobs.html')
 
-@admin_page('shiftleader')
+@admin_required('shiftleader')
 def completed_detail(request, job_id):
     return render_page(request, 'shiftleader/completed_detail.html')
 

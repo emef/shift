@@ -64,7 +64,7 @@
 # LOGIN_URL/LOGOUT_URL values to urlpatterns, and show login/logout
 # links in templates/includes/user_panel.html. Defaults to False.
 #
-# ACCOUNTS_ENABLED = True
+ACCOUNTS_ENABLED = True
 
 # If ``True``, users will be automatically redirected to HTTPS
 # for the URLs specified by the ``SSL_FORCE_URL_PREFIXES`` setting.
