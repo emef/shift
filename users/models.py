@@ -5,7 +5,6 @@ from shift.users.choices import ETHNICITY_CHOICES, HAIR_COLOR_CHOICES, EYE_COLOR
 class Contractor(models.Model):
     user = models.OneToOneField(User)
     birthdate = models.DateField()
-    is_female = models.BooleanField()
     contact_email = models.EmailField()
     payment_email = models.EmailField()
     phone = models.CharField(max_length=20)
@@ -29,6 +28,7 @@ class ContractorEducation(models.Model):
 
 class AttributeSet(models.Model):
     contractor = models.OneToOneField('Contractor', related_name='attributes')
+    sex = models.IntegerField(choices=((1, 'Female',), (2, 'Male')), null=True, blank=True)
     height = models.FloatField(null=True, blank=True)
     weight = models.FloatField(null=True, blank=True)
     bust_chest = models.FloatField(null=True, blank=True)

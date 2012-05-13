@@ -53,12 +53,17 @@ class UserAdminForm(forms.ModelForm):
      
     
 class ClientAdminForm(UserAdminForm):
+    def clean(self):
+        cleaned_data = super(ClientAdminForm, self).clean()
+        self.instance.user.groups.add(Group.objects.get(name='client'))
+        return cleaned_data
+    
     class Meta:
         model = Client
         
 class ContactInline(admin.StackedInline):
     model = ClientContactInfo
-    extra = 1
+    extra = 3
     
 class ClientAdmin(admin.ModelAdmin):
     exclude = ('user',)
@@ -81,15 +86,23 @@ MANAGER_CHOICES = (
     
 class ManagerAdminForm(UserAdminForm):
     manager_roles = forms.MultipleChoiceField(choices=MANAGER_CHOICES)
+
+    def __init__(self, data=None, *args, **kwargs):
+        super(ManagerAdminForm, self).__init__(data, *args, **kwargs)
+        instance = kwargs.get('instance', None)
+        if instance is not None:
+            igrps = [g.name for g in instance.user.groups.all()]
+            self['manager_roles'].field.initial = igrps
+            #self[''].field.initial = instance.user.first_name
+    
     class Meta:
         model = Manager
 
     def clean(self):
         cleaned_data = super(ManagerAdminForm, self).clean()
         user = self.instance.user
-        user.groups.all().delete()
+        user.groups.clear()
         for role in cleaned_data['manager_roles']:
-            print role
             user.groups.add(Group.objects.get(name=role))
         user.save()
         return cleaned_data
@@ -135,7 +148,7 @@ class ContractorAdmin(admin.ModelAdmin):
                 'fields': ('username', 'password', 'first_name', 'last_name'),
         }),
         ('Personal', {
-            'fields': ('birthdate', 'is_female',),
+            'fields': ('birthdate',),
         }),
         ('Contact', {
             'fields': ('phone', 'contact_email', 'payment_email'),
@@ -143,6 +156,6 @@ class ContractorAdmin(admin.ModelAdmin):
     )
 
 admin.site.register(Client, ClientAdmin)
-admin.site.register(Contractor, ContractorAdmin)
+#admin.site.register(Contractor, ContractorAdmin)
 admin.site.register(Manager, ManagerAdmin)
-admin.site.register(ClientContactInfo)
+#admin.site.register(ClientContactInfo)
