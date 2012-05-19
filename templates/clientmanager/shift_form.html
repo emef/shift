@@ -1,0 +1,32 @@
+<div>
+  <form>
+    {% for field in form %}
+    <div>
+      {{ field.errors }}
+      {{ field.label_tag }} {{ field }}
+    </div>
+    {% endfor %}
+  </form>
+  <div>
+    <a class="modallink" href="javascript:void(0)">Edit Qualifications</a>
+  </div>
+</div>
+<div class="shift-designer">
+  <h3>Specify Qualifications</h3>
+  <p>
+    Blank fields will be ignored. Simply close the dialog when
+    finished.
+  </p>
+  
+  <form class="role-default set">
+    {% include "clientmanager/role_form.html" with form=default_role.form %}
+  </form>
+
+  {% for role in roles %}
+  <form class="role-{{role.name}} role-form">
+    <h3>{{role.name}} Qualifications</h3>
+    {% include "clientmanager/role_form.html" with form=role.form %}
+  </form>
+  {% endfor %}
+  
+</div>

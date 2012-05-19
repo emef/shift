@@ -4,7 +4,11 @@
 {{ block.super }}
 <link type="text/css" rel="stylesheet" href="{{STATIC_URL}}css/modal.css" />
 <link type="text/css" rel="stylesheet" href="{{STATIC_URL}}css/edit_job.css" />
+<link type="text/css" rel="stylesheet" href="{{STATIC_URL}}css/smoothness/jquery-ui-1.8.20.custom.css" />
+<script type="text/javascript" src="{{STATIC_URL}}js/googlemaps_widget.js"></script>
 <script type="text/javascript" src="{{STATIC_URL}}js/jquery.simplemodal.js"></script>
+<script type="text/javascript" src="{{STATIC_URL}}js/jquery-ui-1.8.20.custom.min.js"></script>
+<script type="text/javascript" src="{{STATIC_URL}}js/jquery-ui-timepicker-addon.js"></script> 
 <script type="text/javascript" src="{{STATIC_URL}}js/jquery.toObject.js"></script>
 <script type="text/javascript" src="{{STATIC_URL}}js/form2js.js"></script>
 <script type="text/javascript" src="{{STATIC_URL}}js/edit_job.js"></script>
@@ -18,7 +22,7 @@
 
 <div class="toggle-able shift-aligned">
   <div><h4>Basic Job Info</h4></div>
-  <form>
+  <form id="basic-form">
     {% for field in job_form %}
     <div>
       {{ field.errors }}
@@ -29,87 +33,28 @@
 </div>
 
 <div>
-  {% for shift in existing_shifts %}
-  <div class="toggle-able shift-aligned job-shift">		
-    <div class="shift-title">
-      <span>Shift: {{ shift.title }}</span>
-      <a class="deletelink" href="javascript:void(0)">delete</a>
-    </div>
-    <div>
-      <form>
-	{% for field in shift.form %}
-	<div>
-	  {{ field.errors }}
-	  {{ field.label_tag }} {{ field }}
-	</div>
-	{% endfor %}
-      </form>
-      <div>
-	<a class="modallink" href="javascript:void(0)">Edit Qualifications</a>
+  <div>
+    {% for shift in existing_shifts %}
+    <div class="toggle-able shift-aligned job-shift">		
+      <div class="shift-title">
+	<span>Shift: {{ shift.title }}</span>
+	<a class="deletelink" href="javascript:void(0)">delete</a>
       </div>
+      {% include "clientmanager/shift_form.html" with form=shift.form role_forms=role_forms %}
     </div>
-    <div class="shift-designer">
-      <h3>Specify Qualifications</h3>
-      <p>
-	Blank fields will be ignored. Simply close the dialog when
-	finished.
-      </p>
-      <div class="shift-aligned">
-	<form>
-	  {% for hidden in attribute_form.hidden_fields %}
-	  {{ hidden }}
-	  {% endfor %}
-	  {% for field in attribute_form.visible_fields %}
-	  <div>
-	    {{ field.errors }}
-	    {{ field.label_tag }} {{ field }}
-	  </div>
-	  {% endfor %}
-	</form>
-      </div>
-    </div>
+    {% endfor %}
   </div>
-  {% endfor %}
+
+  <div class="toggle-able shift-aligned new-shift">
+    <div class="shift-title">
+      <span>Add a Shift</span>
+      <a class="deletelink" style="visibility: hidden" href="javascript:void(0)">delete</a>
+    </div>
+    {% include "clientmanager/shift_form.html" with form=empty_shift role_forms=role_forms %}
+  </div>
 </div>
 
-
-<div class="toggle-able shift-aligned new-shift">
-  <div class="shift-title">
-    <span>Add a Shift</span>
-    <a class="deletelink" style="visibility: hidden" href="javascript:void(0)">delete</a>
-  </div>
-  <div>
-    <form>
-      {% for field in empty_shift %}
-      <div>
-	{{ field.errors }}
-	{{ field.label_tag }} {{ field }}
-      </div>
-      {% endfor %}
-    </form>
-    <div>
-      <a class="modallink" href="javascript:void(0)">Edit Qualifications</a>
-    </div>
-  </div>
-  <div class="shift-designer">
-    <h3>Specify Qualifications</h3>
-    <p>
-      Blank fields will be ignored. Simply close the dialog when
-      finished.
-    </p>
-    <div class="shift-aligned">
-      <form>
-	{% for hidden in attribute_form.hidden_fields %}
-	{{ hidden }}
-	{% endfor %}
-	{% for field in attribute_form.visible_fields %}
-	<div>
-	  {{ field.errors }}
-	  {{ field.label_tag }} {{ field }}
-	</div>
-	{% endfor %}
-      </form>
-    </div>
-  </div>
+<div>
+  <input id="save-job" type="submit" value="Save Job and Shifts" />
 </div>
 {% endblock %}

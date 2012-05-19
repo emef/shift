@@ -1,3 +1,5 @@
+SEX_CHOICES = ((1, 'Female',), (2, 'Male',),)
+
 ETHNICITY_CHOICES = (
     ('America', (
             (1, 'Native North American'),
@@ -43,6 +45,12 @@ HAIR_COLOR_CHOICES = (
     (6, 'Other'),
 )
 
+HAIR_LENGTH_CHOICES = (
+    (1, 'Short'),
+    (2, 'Medium'),
+    (3, 'Long'),
+)
+
 EYE_COLOR_CHOICES = (
     (1, 'Black'),
     (2, 'Brown'),
@@ -52,4 +60,12 @@ EYE_COLOR_CHOICES = (
     (6, 'Other'),
 )
 
+CUP_SIZE_CHOICES = (
+    (1, 'A'),
+    (2, 'B'),
+    (3, 'C'),
+    (4, 'D'),
+    (5, 'E'),
+)    
+    
 

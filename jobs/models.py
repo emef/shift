@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
+from shift.users.models import ContractorRole
+from shift import location
 
 JOB_OPEN = 'open'
 JOB_PENDING = 'pending'
@@ -32,13 +34,12 @@ class JobFile(models.Model):
 
 class Shift(models.Model):
     job = models.ForeignKey('Job', related_name='shifts')
+    role = models.ForeignKey(ContractorRole)
     title = models.CharField(max_length=150)
     start = models.DateTimeField()
     end = models.DateTimeField()
     pays = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
-    location = models.CharField(max_length=250, blank=True)
-    lat = models.FloatField(null=True, blank=True)
-    lng = models.FloatField(null=True, blank=True)
+    location = location.LocationField(max_length=100, null=True, blank=True)
     # filters...
 
     def __unicode__(self):

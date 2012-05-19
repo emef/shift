@@ -1,4 +1,3 @@
-
 ######################
 # MEZZANINE SETTINGS #
 ######################
@@ -243,6 +242,7 @@ INSTALLED_APPS = (
     "mezzanine.galleries",
     "mezzanine.twitter",
     #"mezzanine.mobile",
+    'form_utils',
     'south',
     'shift.jobs',
     'shift.users',
@@ -278,7 +278,7 @@ MIDDLEWARE_CLASSES = (
     "mezzanine.core.middleware.TemplateForHostMiddleware",
     "mezzanine.core.middleware.DeviceAwareFetchFromCacheMiddleware",
     "mezzanine.core.middleware.AdminLoginInterfaceSelectorMiddleware",
-    "shift.users.EnsureGroupsMiddleware",
+    "shift.users.EnsureDefaultsMiddleware",
     # Uncomment the following if using any of the SSL settings:
     # "mezzanine.core.middleware.SSLRedirectMiddleware",
 )

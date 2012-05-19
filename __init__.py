@@ -5,6 +5,35 @@ from django.contrib.auth.decorators import login_required
 
 import simplejson as json
 
+def _choice_assoc_fn(x, choices, keyfn):
+    for item in choices:
+        key, val = item
+        
+        # nested choices
+        if isinstance(val, tuple):
+            for subkey, subval in val:
+                found = keyfn(x, subkey, subval)
+                if found != None:
+                    return found
+                
+        # single choice
+        else:
+            found = keyfn(x, key, val)
+            if found != None:
+                return found
+
+def choice_assoc(x, choices):
+    def keyfn(x, key, val):
+        if x == key:
+            return val
+    return _choice_assoc_fn(x, choices, keyfn)
+
+def choice_rassoc(x, choices):
+    def keyfn(x, key, val):
+        if x == val:
+            return key
+    return _choice_assoc_fn(x, choices, keyfn)
+        
 def render_page(request, template_name, *args):
     output = args[0] if len(args) > 0 else {}
     if hasattr(request, 'page_info'):

@@ -126,12 +126,20 @@ class PhotoInline(admin.StackedInline):
     model = ContractorPhoto
     extra = 3
 
-class AttributesInline(admin.StackedInline):
-    model = AttributeSet
-    classes = ('collapse open',)
-    inline_classes = ('collapse open', 'hi')
+#class AttributesInline(admin.StackedInline):
+#    model = AttributeSet
+#    classes = ('collapse open',)
+#    inline_classes = ('collapse open', 'hi')
+    
+class AttributeInline(admin.StackedInline):
+    model = ContractorAttributeVal
+    extra = 3
     
 class ContractorAdminForm(UserAdminForm):
+    def __init__(self, *args, **kwargs):
+        super(ContractorAdminForm, self).__init__(*args, **kwargs)
+        self['roles'].field.initial = [ContractorRole.objects.get(name='default').id]
+    
     class Meta:
         model = Contractor
         extra = 0
@@ -142,20 +150,25 @@ class ContractorAdmin(admin.ModelAdmin):
         
     exclude = ('user',)
     form = ContractorAdminForm
-    inlines = [PhotoInline, AttributesInline]
+    #inlines = [PhotoInline, AttributesInline]
+    inlines = [PhotoInline, AttributeInline]
     fieldsets = (
         ('User Info', {
                 'fields': ('username', 'password', 'first_name', 'last_name'),
         }),
         ('Personal', {
-            'fields': ('birthdate',),
+            'fields': ('birthdate', 'location',),
         }),
         ('Contact', {
             'fields': ('phone', 'contact_email', 'payment_email'),
-         }),
+        }),
+        (None, {
+            'fields': ('roles',),
+        }),
+         
     )
 
 admin.site.register(Client, ClientAdmin)
-#admin.site.register(Contractor, ContractorAdmin)
+admin.site.register(Contractor, ContractorAdmin)
 admin.site.register(Manager, ManagerAdmin)
 #admin.site.register(ClientContactInfo)

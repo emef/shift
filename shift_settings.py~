@@ -1,0 +1,18 @@
+GROUPS = (
+    ('clientmanager', (
+            ('users', 'client'),
+            ('jobs', 'job'),
+            ('jobs', 'shift'),
+        )
+    ),
+    ('talentmanager', (
+            ('users', 'contractor'),
+        )
+    ),
+    ('shiftleader', (
+            ('jobs', ''),
+        )
+    ),
+    ('contractor', ()),
+    ('client', ()),
+ )

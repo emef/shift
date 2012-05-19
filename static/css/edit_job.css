@@ -1,2 +1,5 @@
 .shift-designer {display:none;}
 .modallink {font-weight: bold}
+
+.role-form { display: none; }
+.role-form.set { display: block; }

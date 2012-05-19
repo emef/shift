@@ -1,9 +1,14 @@
 from pprint import pprint
 
+from form_utils.forms import BetterForm
 from django import forms
 from django.db import models
+from django.contrib.admin import widgets
+from shift import choice_assoc
 from shift.jobs.models import Job, Shift
-from shift.users.models import AttributeSet
+from shift.users.models import ContractorRole
+
+from shift.users.models import INT_FIELD, FLOAT_FIELD, BOOL_FIELD, CHOICE_FIELD, FIELD_TYPE_CHOICES
 
 
 class JobForm(forms.ModelForm):
@@ -15,96 +20,86 @@ class ShiftForm(forms.ModelForm):
         model = Shift
         exclude = ('job',)
 
+    class Media:
+        js = (
+            'http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js',
+            'http://maps.google.com/maps/api/js?sensor=false',
+        )
 
-class DynForm(forms.Form):    
-    """
-    Dynamic form that allows the user to change and then verify the data that was parsed
-    """
-    class Meta:
-        fields = None
+    def __init__(self, *args, **kwargs):
+        super(ShiftForm, self).__init__(*args, **kwargs)
+        
+        qs = ContractorRole.objects.all().exclude(name='default')
+        self.fields['role'].queryset = qs
+        
+        
+def dyn_form(fields, data, fieldsets):
     
-    def set_fields(self, kwds, keys=None):
-        """
-        Set the fields in the form
-        """
-        if not keys:
-            keys = kwds.keys()
-            keys.sort()
-        for k in keys:
-            self.fields[k] = kwds[k]
+    _Meta = type('Meta', (), {'fieldsets': fieldsets})
+    
+    class _dyn_form(BetterForm):
+        Meta = _Meta
+        
+        def __new__(self, *args, **kwargs):
+            self.Meta.fieldsets = fieldsets
+            return BetterForm.__new__(self, *args, **kwargs)
             
-    def set_data(self, kwds):
-        """
-        Set the data to include in the form
-        """
-        keys = kwds.keys()
-        keys.sort()
-        for k in keys:
-            self.data[k] = kwds[k]
-            
-    def validate(self, post):
-        """
-        Validate the contents of the form
-        """
-        for name,field in self.fields.items():
-            try:
-                field.clean(post[name])
-            except ValidationError, e:
-                self.errors[name] = e.messages
+        def __init__(self, *args, **kwargs):
+            super(_dyn_form, self).__init__(*args, **kwargs)
+            for k,v in fields.items():
+                self.fields[k] = v
                 
-    #att_form = DynForm()
-    #att_form.setFields(fields)
-    #return att_form
+            for k,v in data.items():
+                self.data[k] = v
+                
+        def validate(self, post):
+            for name,field in self.fields.items():
+                try:
+                    field.clean(post[name])
+                except ValidationError, e:
+                    self.errors[name] = e.messages
 
-def mk_attribute_form(filters=None):
-    fields = {}
-    fieldorder = []
+    return _dyn_form()
+                
+                
+MIN_FMT = 'min. {0}'
+MAX_FMT = 'max. {0}'
+BLANK_CHOICE = (-1, '----------')
 
-    choiceorder = []
-    boolorder = []
+def mk_null_choices(choices):
+    return (BLANK_CHOICE,) + choices
 
-    if not filters:
-        filters = {}
-     
-    for field in AttributeSet._meta.fields:
-        fieldname = field.attname        
-        initial = filters.get(fieldname, None)
-        if field._choices:
-            choices = ((None, ' - ',),) + field._choices
-            fields[fieldname] = forms.ChoiceField(choices=choices, 
-                                                  required=False,
-                                                  initial=initial)
-            choiceorder.append(fieldname)
-        elif isinstance(field, models.CharField):
-            pass
-        elif isinstance(field, models.IntegerField):
-            min_name = '{0} min'.format(fieldname)
-            max_name = '{0} max'.format(fieldname)
-            fieldorder += [min_name, max_name]
-            fields[min_name] = forms.IntegerField(required=False, initial=initial)
-            fields[max_name] = forms.IntegerField(required=False, initial=initial)
-        elif isinstance(field, models.FloatField):
-            min_name = '{0} min'.format(fieldname)
-            max_name = '{0} max'.format(fieldname)
-            fieldorder += [min_name, max_name]
-            fields[min_name] = forms.FloatField(required=False, initial=initial)
-            fields[max_name] = forms.FloatField(required=False, initial=initial)
-        elif isinstance(field, models.NullBooleanField):
-            fields[fieldname] = forms.NullBooleanField(required=False, initial=initial)
-            boolorder.append(fieldname)
-        elif isinstance(field, models.AutoField):
-            fields[fieldname] = forms.IntegerField(required=False, 
-                                                   widget=forms.HiddenInput,
-                                                   initial=initial)
-            fieldorder.insert(0, fieldname)
-        elif isinstance(field, models.OneToOneField):
-            fields[fieldname] = forms.IntegerField(required=False, 
-                                                   widget=forms.HiddenInput,
-                                                   initial=initial)
-            fieldorder.insert(0, fieldname)
+
+def mk_role_form(role):
+    fields = { }
+    fieldsets = []
+    
+    for attr in role.attributes.all():
+        fname = attr.field_name
+        ftype = choice_assoc(attr.field_type, FIELD_TYPE_CHOICES)
+        is_range = False
+        if ftype == INT_FIELD:
+            is_range = True
+            field_class = forms.IntegerField
+        elif ftype == FLOAT_FIELD:
+            is_range = True
+            field_class = forms.FloatField
+        elif ftype == BOOL_FIELD:
+            fields[fname] = forms.NullBooleanField(required=False)
+            fieldsets.append( (None, {'fields': [fname]}) )
+        elif ftype == CHOICE_FIELD:
+            choices = mk_null_choices(attr.choices)
+            fields[fname] = forms.ChoiceField(choices=choices, required=False)
+            fieldsets.append( (None, {'fields': [fname]}) )
+        else:
+            raise ValueError('invalid field type: {0}'.format(ftype))
             
-    form = DynForm()
-    form.set_fields(fields, fieldorder + choiceorder + boolorder)
-    form.set_data(dict([('id', 1)]))
-
-    return form
+        if is_range:
+            min_name, max_name = (MIN_FMT.format(fname), MAX_FMT.format(fname))
+            fields[min_name] = field_class(required=False)
+            fields[max_name] = field_class(required=False)
+            fieldsets.append( (None, {'fields': [min_name, max_name]}) )
+        
+            
+    return dyn_form(fields, {}, fieldsets)
+    
