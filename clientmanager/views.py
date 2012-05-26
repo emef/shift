@@ -3,7 +3,7 @@ from pprint import pprint
 from django.http import Http404
 from django.shortcuts import redirect, get_object_or_404
 from shift import render_page, admin_required, json_response
-from shift.clientmanager.forms import JobForm, ShiftForm, mk_role_form
+from shift.clientmanager.forms import JobForm, ShiftForm, mk_role_forms
 from shift.jobs.models import Job, Shift
 from shift.users.models import ContractorRole
 
@@ -44,21 +44,11 @@ def job_edit(request, job_id):
     existing_shifts = [{'title': s.title,
                         'form': ShiftForm(instance=s)} for s in job.shifts.all()]
 
-    
-    default = ContractorRole.objects.get(name='default')
-    default_role = {'name': 'Basic Info',
-                    'form': mk_role_form(default) }
-                    
-    qs =  ContractorRole.objects.all().exclude(name='default')
-    roles = [{'name': role.name,
-              'form': mk_role_form(role)} for role in qs]
-    
     data = {'job_title': job.title,
             'job_form': job_form,
             'empty_shift': shift_form,
             'existing_shifts': existing_shifts,
-            'default_role': default_role,
-            'roles': roles }
+            'roles': mk_role_forms() }
     
     return render_page(request, 'clientmanager/job_edit.html', data)
 
@@ -66,8 +56,30 @@ def ajax_job_edit(request, job_id):
     job = get_object_or_404(Job, pk=job_id)
 
     json = simplejson.loads(request.POST['json'])
-    pprint(json)
+    job = get_object_or_404(Job, pk=job_id)
+    job_form = JobForm(json['basic'], instance=job)
+    job = job_form.save(commit=False)
+
+    existing = dict( (s.id, s) for s in job.shifts.all() )
     
+    for shift in json['shifts']:
+        shift_form = ShiftForm(shift['info'])
+        if not shift_form.is_valid():
+            pprint (shift_form.__dict__)
+            break
+        
+        shift = shift_form.save(commit=False)
+        shift.job = job
+        
+        id = shift_form.cleaned_data['id']
+        if id in existing:
+            shift.id = id
+            del existing[id]
+            
+        shift.save()
+
+    Shift.objects.filter(id__in=existing.keys()).delete()
+        
     return json_response({'status': 'ok'})
 
 @admin_required('clientmanager')

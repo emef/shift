@@ -2,6 +2,7 @@
   {% if form.non_field_errors %}{{ form.non_field_errors }}{% endif %}
   {% for fieldset in form.fieldsets %}
   <fieldset class="{{ fieldset.classes }}">
+    <h2>{{fieldset.name}}</h2>
     <ol>
       {% for field in fieldset %}
       {% if field.is_hidden %}

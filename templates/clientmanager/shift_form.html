@@ -3,7 +3,8 @@
     {% for field in form %}
     <div>
       {{ field.errors }}
-      {{ field.label_tag }} {{ field }}
+      {% if not field.is_hidden %}  {{ field.label_tag }} {% endif %} 
+      {{ field }}
     </div>
     {% endfor %}
   </form>
@@ -12,16 +13,11 @@
   </div>
 </div>
 <div class="shift-designer">
-  <h3>Specify Qualifications</h3>
   <p>
     Blank fields will be ignored. Simply close the dialog when
     finished.
   </p>
   
-  <form class="role-default set">
-    {% include "clientmanager/role_form.html" with form=default_role.form %}
-  </form>
-
   {% for role in roles %}
   <form class="role-{{role.name}} role-form">
     <h3>{{role.name}} Qualifications</h3>

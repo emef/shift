@@ -4,8 +4,8 @@ from pprint import pprint
 from django.contrib.auth.models import Group, Permission, ContentType
 from django.core.exceptions import MiddlewareNotUsed
 from shift import choice_rassoc
-from shift.shift_settings import GROUPS, PUBLIC_ATTRIBUTES, PRIVATE_ATTRIBUTES, CONTRACTOR_ROLES
-from shift.users.models import Attribute, ContractorRole, FIELD_TYPE_CHOICES
+import shift.shift_settings as settings
+from shift.users.models import Attribute, AttributeGroup, ContractorRole, FIELD_TYPE_CHOICES
 
 from south.modelsinspector import add_introspection_rules
 add_introspection_rules([], ["^shift\.location\.LocationField"])
@@ -13,10 +13,9 @@ add_introspection_rules([], ["^shift\.location\.LocationField"])
 
 class EnsureDefaultsMiddleware:
     def __init__(self):
-        self.ensure_groups(GROUPS)
-        self.ensure_attributes(PUBLIC_ATTRIBUTES, False)
-        self.ensure_attributes(PRIVATE_ATTRIBUTES, True)
-        self.ensure_roles(CONTRACTOR_ROLES)
+        self.ensure_groups(settings.GROUPS)
+        #self.ensure_attributes(settings.ATTRIBUTES)
+        #self.ensure_roles(settings.CONTRACTOR_ROLES)
         raise MiddlewareNotUsed
 
     def mk_group(self, name, perms):
@@ -37,7 +36,7 @@ class EnsureDefaultsMiddleware:
             if not Group.objects.filter(name=name).exists():
                 self.mk_group(name, perms)
 
-    def mk_attribute(self, field_name, field_type, is_private):
+    def mk_attribute(self, field_name, field_type, group):
         if isinstance(field_type, tuple):
             choices = str(field_type)
             field_type = 'choices'
@@ -48,18 +47,24 @@ class EnsureDefaultsMiddleware:
         
         attr = Attribute.objects.create(field_name=field_name,
                                         field_type=field_id,
-                                        is_private=is_private,
-                                        choices_str=choices)
+                                        is_private=False,
+                                        choices_str=choices,
+                                        group=group)
         
         
-    def ensure_attributes(self, attributes, is_private):
-        keys = [attr[0] for attr in attributes]
-        qs = Attribute.objects.all()
-        existing = set(attr.field_name for attr in qs)
-        for field_name, field_type in attributes:
-            if not field_name in existing:
-                self.mk_attribute(field_name, field_type, is_private)
-                
+    def ensure_attributes(self, attributes):
+        for name, attrs in attributes:
+            keys = [attr[0] for attr in attrs]
+            group, created = AttributeGroup.objects.get_or_create(name=name)
+            existing = set(attr.field_name for attr in group.attributes.all())
+            for field_name, field_type in attrs:
+                if not field_name in existing:
+                    self.mk_attribute(field_name, field_type, group)
+                else:
+                    existing.remove(field_name)
+        
+            Attribute.objects.filter(field_name__in=existing).delete()
+            
                 
     def mk_role(self, name, attributes):
         attrs = Attribute.objects.filter(field_name__in=attributes)
@@ -76,8 +81,6 @@ class EnsureDefaultsMiddleware:
                 del existing[field_name]
             else:
                 to_add.append(field_name)
-        
-        print 'to_add', (to_add)
                 
         # remove old attributes
         old = role.attributes.filter(field_name__in=existing.keys())

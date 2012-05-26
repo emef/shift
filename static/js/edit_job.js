@@ -46,15 +46,53 @@ function init_shift(shift) {
     shift.find("select[name=role]").change(function () {
 	var role = $(this).find("option:selected").text();
 	set_role_form(shift, role);
-    });
+    }).change();
     shift.find("input[name=start], input[name=end]").datetimepicker({
 	dateFormat:"yy-mm-dd",
 	timeFormat:"h:m:s",
 	ampm: true
     });
+    shift.find("input.range").each(function() {
+	var hidden = $(this);
+	var name = $(this).attr("name");
+	var min = $("<input type='text' name='"+"min-"+name+"' />");
+	var max = $("<input type='text' name='"+"max-"+name+"' />");
+	var label = $("<label>" + name + "</label>");
+	var li = $("<li />").append(label);
+	if (hidden.hasClass("male")) li.addClass("male");
+	if (hidden.hasClass("female")) li.addClass("female");
+	var update = function() {
+	    hidden.val(min.val() + "," + max.val());
+	}
+	min.change(update);
+	max.change(update);
+	li.append(min);
+	li.append(max);
+	$(this).parent().append(li);
+    });
+    shift.find("select.male, select.female").each(function() {
+	var genderclass;
+	if ($(this).hasClass("male"))
+	    genderclass = "male";
+	else
+	    genderclass = "female";
+	$(this).parent("li").addClass(genderclass);
+    });
+    var attrs = get_attrs(shift);
+    attrs.find("select[name=Gender]").change(function () {
+	var val = $(this).find("option:selected").text();
+	if (val == "Male") {
+	    attrs.find("li.male").show();
+	    attrs.find("li.female").hide();
+	} else if (val == "Female") {
+	    attrs.find("li.male").hide();
+	    attrs.find("li.female").show();
+	} else {
+	    attrs.find("li.male, li.female").show();
+	}
+    });
     g = modal;
     modal.click(function () {
-	console.log('hi');
 	get_attrs(shift).modal({
 	    persist: true,
 	    onClose: function() {
@@ -69,10 +107,10 @@ function shift_to_obj() {
     var info = $(shift.find("form")[0]).toObject();
     var attrs = {};
     get_attrs(shift).find("form.set").each(function() {
+	console.log($(this));
 	var obj = $(this).toObject();
 	for (var key in obj) {
-	    console.log(key, attrs[key]);
-	    if (obj[key] != "-1") 
+	    if (obj[key] != "-1" && obj[key] != undefined) 
 		attrs[key] = obj[key];
 	}
     });
@@ -89,7 +127,7 @@ function save() {
 	dataType: 'json',
 	data: {json: JSON.stringify(data)},
 	success: function(r) { 
-	    //window.location = '/client-manager/'
+	    window.location = ''
 	    console.log(data, r);
 	}
     });

@@ -42,7 +42,7 @@ a.deletelink:link, a.deletelink:visited {
 }
 
 .shift-aligned ol > li {
-    display: inline;
+    display: block;
 }
 
 .shift-aligned ol label {

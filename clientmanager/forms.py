@@ -4,11 +4,14 @@ from form_utils.forms import BetterForm
 from django import forms
 from django.db import models
 from django.contrib.admin import widgets
-from shift import choice_assoc
+from shift import choice_rassoc
 from shift.jobs.models import Job, Shift
 from shift.users.models import ContractorRole
 
-from shift.users.models import INT_FIELD, FLOAT_FIELD, BOOL_FIELD, CHOICE_FIELD, FIELD_TYPE_CHOICES
+from shift.users.models import INT_FIELD, FLOAT_FIELD, BOOL_FIELD, CHOICE_FIELD
+from shift.users.models import CHAR_FIELD, FIELD_TYPE_CHOICES
+
+import shift_settings as settings
 
 
 class JobForm(forms.ModelForm):
@@ -16,10 +19,11 @@ class JobForm(forms.ModelForm):
         model = Job
 
 class ShiftForm(forms.ModelForm):
+    id = forms.IntegerField(required=False, widget=forms.HiddenInput())
     class Meta:
         model = Shift
         exclude = ('job',)
-
+        
     class Media:
         js = (
             'http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js',
@@ -29,8 +33,9 @@ class ShiftForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(ShiftForm, self).__init__(*args, **kwargs)
         
-        qs = ContractorRole.objects.all().exclude(name='default')
+        qs = ContractorRole.objects.all()
         self.fields['role'].queryset = qs
+        self.fields['role'].initial = qs[0]
         
         
 def dyn_form(fields, data, fieldsets):
@@ -62,8 +67,8 @@ def dyn_form(fields, data, fieldsets):
     return _dyn_form()
                 
                 
-MIN_FMT = 'min. {0}'
-MAX_FMT = 'max. {0}'
+MIN_FMT = 'min({0})'
+MAX_FMT = 'max({0})'
 BLANK_CHOICE = (-1, '----------')
 
 def mk_null_choices(choices):
@@ -103,3 +108,78 @@ def mk_role_form(role):
             
     return dyn_form(fields, {}, fieldsets)
     
+def mk_fields(field, role):
+    FIELD_MAP = {
+        INT_FIELD: (forms.IntegerField, forms.HiddenInput),
+        FLOAT_FIELD: (forms.FloatField, forms.HiddenInput),
+        CHAR_FIELD: (forms.CharField, forms.TextInput),
+        BOOL_FIELD: (forms.NullBooleanField, forms.NullBooleanSelect),
+        CHOICE_FIELD: (forms.ChoiceField, forms.Select),
+    }
+    
+    def mk_field (name, ftype, css_class, **kwargs): 
+        fklass, wklass = FIELD_MAP[ftype]
+        attrs = {'class': css_class}
+        return (name, fklass(required=False, widget=wklass(attrs=attrs), **kwargs))
+    
+    def mk_range(fname, ftype, css_class):
+        css_class = css_class + ' range'
+        return [mk_field(fname, ftype, css_class)]
+                
+    fname, ftype = field
+    
+    if fname in settings.MALE_ONLY_ATTRIBUTES:
+        css_class = "{0} male".format(role)
+    elif fname in settings.FEMALE_ONLY_ATTRIBUTES:
+        css_class = "{0} female".format(role)
+    else:
+        css_class = role
+    
+    if ftype in (INT_FIELD, FLOAT_FIELD):
+        return mk_range(fname, ftype, css_class)
+    elif isinstance(ftype, tuple):
+        # tuple => choice field
+        choices = mk_null_choices(ftype)
+        return [mk_field(fname, CHOICE_FIELD, css_class, choices=choices)]
+    else:
+        return [mk_field(fname, ftype, css_class)]
+
+_ATTR_MAP = {}
+for grp_name, attrs in settings.ATTRIBUTES:
+    for attr in attrs:
+        _ATTR_MAP[attr[0]] = (grp_name, attr[1])
+        
+def attr_info(attr):
+    "returns (group_name, field_type)"
+    return _ATTR_MAP[attr]
+    
+def join(lists):
+    return reduce(lambda u,v: u + v, lists)
+
+def mk_role_forms():
+    forms = []
+    for rname, attrs in settings.CONTRACTOR_ROLES:
+        # fdict = { '<group_name>', [(<fname>, <ftype>), ... ], ... }
+        fdict = {}
+        dynfields = {}
+        dynfieldsets = []
+        
+        for attr in attrs:
+            grp_name, ftype = attr_info(attr)
+            if grp_name in fdict:
+                fdict[grp_name].append((attr, ftype))
+            else:
+                fdict[grp_name] = [(attr, ftype)]
+        
+        for grp_name, _ in settings.ATTRIBUTES:
+            if grp_name in fdict:
+                fields = fdict[grp_name]
+                newfields = dict(join(mk_fields(field, rname) for field in fields))
+                dynfields.update(newfields)
+                dynfieldsets.append( (grp_name, {'fields': newfields.keys()}) )
+            
+            
+        forms.append( {'name': rname,
+                       'form': dyn_form(dynfields, {}, dynfieldsets)} )
+
+    return forms

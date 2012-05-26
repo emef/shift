@@ -31,15 +31,19 @@ INT_FIELD = 'integer'
 FLOAT_FIELD = 'float'
 BOOL_FIELD = 'bool'
 CHOICE_FIELD = 'choices'
+CHAR_FIELD = 'char'
+
     
 FIELD_TYPE_CHOICES = (
     (1, INT_FIELD),
     (2, FLOAT_FIELD),
     (3, BOOL_FIELD),
     (4, CHOICE_FIELD),
+    (5, CHAR_FIELD),
 )
     
 class Attribute(models.Model):
+    group = models.ForeignKey('AttributeGroup', related_name='attributes')
     field_name = models.CharField(max_length=100)
     field_type = models.IntegerField(choices=FIELD_TYPE_CHOICES)
     choices_str = models.CharField(max_length=300, null=True, blank=True)
@@ -51,6 +55,9 @@ class Attribute(models.Model):
     @property
     def choices(self):
         return eval(self.choices_str)
+
+class AttributeGroup(models.Model):
+    name = models.CharField(max_length=100)
 
 class ContractorRole(models.Model):
     name = models.CharField(max_length=100)

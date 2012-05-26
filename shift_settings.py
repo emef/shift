@@ -1,5 +1,5 @@
 from shift.users.choices import *
-from shift.users.models import INT_FIELD, FLOAT_FIELD, BOOL_FIELD, CHOICE_FIELD
+from shift.users.models import INT_FIELD, FLOAT_FIELD, BOOL_FIELD, CHOICE_FIELD, CHAR_FIELD
 
 # Groups:
 # These define the django.contrib.auth groups that are
@@ -29,7 +29,7 @@ GROUPS = (
 )
 
 # Attributes:
-# The format is (field_name, field_type)
+# The format is (attr_set_name, ((field_name, field_type),))
 # If the field has discrete choices (sex, eye color, etc)
 # then the field_type should be a choices list in the
 # same format that django uses for model fields: i.e.
@@ -44,30 +44,54 @@ GROUPS = (
 # a field name exists as a property on the Contractor model,
 # it will be used when performing filters
 
-PUBLIC_ATTRIBUTES = (
-    ('Sex', SEX_CHOICES),
-    ('Age', INT_FIELD),
-    ('Height', FLOAT_FIELD),
-    ('Ethnicity', ETHNICITY_CHOICES),
-    ('Eye Color', EYE_COLOR_CHOICES),
-    ('Hair Color', HAIR_COLOR_CHOICES),
-    ('Hair Length', HAIR_LENGTH_CHOICES),
-    ('Nude Ready', BOOL_FIELD),
-    ('Swim Ready', BOOL_FIELD),
-    ('Lingerie Ready', BOOL_FIELD),
-    ('Liquor Ready', BOOL_FIELD),
-    ('Gaming Ready', BOOL_FIELD),
+ATTRIBUTES = (
+    ('General', (
+            ('Gender', GENDER_CHOICES),
+            ('Age', INT_FIELD),
+        ),
+    ),
+    ('Measurements', (
+            ('Height', FLOAT_FIELD),
+            ('Weight', FLOAT_FIELD),
+            ('Bust', FLOAT_FIELD),
+            ('Chest', FLOAT_FIELD),
+            ('Cup Size', CUP_SIZE_CHOICES),
+            ('Waist', FLOAT_FIELD),
+            ('Hips', FLOAT_FIELD),
+            ('Inseam', FLOAT_FIELD),
+            ('Jacket Size', JACKET_SIZE_CHOICES),
+            ('Dress Size', FLOAT_FIELD),
+            ('Shoe Size', FLOAT_FIELD),
+        ),
+    ), 
+    ('Physical', (
+            ('Ethnicity', ETHNICITY_CHOICES),
+            ('Skin Colour', SKIN_COLOUR_CHOICES),
+            ('Eye Colour', EYE_COLOUR_CHOICES),
+            ('Hair Colour', HAIR_COLOUR_CHOICES),
+            ('Hair Length', HAIR_LENGTH_CHOICES),
+        ),
+    ),
+    ('Qualifications', (
+            ('Nude Ready', BOOL_FIELD),
+            ('Swimwear Ready', BOOL_FIELD),
+            ('Lingerie Ready', BOOL_FIELD),
+            ('Liquor Certified', BOOL_FIELD),
+            ('Gaming Certified', BOOL_FIELD),
+            ('Acting Experience', BOOL_FIELD),
+            ('Dance Experience', BOOL_FIELD),
+            ('Access to Vehicle', BOOL_FIELD),
+            ('Education', CHAR_FIELD),
+        ),
+    ),
 )
 
-PRIVATE_ATTRIBUTES = (
-    ('Weight', FLOAT_FIELD),
-    ('Bust/Chest', FLOAT_FIELD),
-    ('Cup Size', CUP_SIZE_CHOICES),
-    ('Waist', FLOAT_FIELD),
-    ('Hips', FLOAT_FIELD),
-    ('Inseam', FLOAT_FIELD),
-    ('Dress Size', FLOAT_FIELD),
-)
+
+
+
+MALE_ONLY_ATTRIBUTES = ('Chest', 'Inseam', 'Jacket Size', )
+FEMALE_ONLY_ATTRIBUTES = ('Bust', 'Hips', 'Cup Size', 'Dress Size',)
+
 
 # Contractor Roles
 # These define the attributes that will be assigned to
@@ -75,21 +99,94 @@ PRIVATE_ATTRIBUTES = (
 # (role_name, attributes) The default role is applied
 # to all contractors 
 CONTRACTOR_ROLES = (
-    ('default', (
-            'Sex',
+    ('Fashion', (
+            'Gender',
             'Age',
-         )
-    ),
-    ('Model', (
             'Height',
+            'Weight',
+            'Bust',
+            'Chest',
+            'Cup Size',
+            'Waist',
+            'Hips',
+            'Inseam',
+            'Jacket Size',
+            'Dress Size',
+            'Shoe Size',
             'Ethnicity',
-            'Eye Color',
-            'Hair Color',
+            'Skin Colour',
+            'Eye Colour',
+            'Hair Colour',
             'Hair Length',
+            'Nude Ready',
+            'Swimwear Ready',
+            'Lingerie Ready',
+            'Liquor Certified',
+            'Gaming Certified',
+            'Acting Experience',
+            'Dance Experience',
+            'Access to Vehicle',
+            'Education',
+        )
+    ),
+    ('Nightlife', (
+            'Gender',
+            'Age',
+            'Height',
+            'Bust',
+            'Chest',
+            'Cup Size',
+            'Waist',
+            'Hips',
+            'Inseam',
+            'Jacket Size',
+            'Dress Size',
+            'Shoe Size',
+            'Ethnicity',
+            'Eye Colour',
+            'Hair Colour',
+            'Hair Length',
+            'Swimwear Ready',
+            'Lingerie Ready',
+            'Liquor Certified',
+            'Gaming Certified',
+            'Acting Experience',
+            'Dance Experience',
+            'Access to Vehicle',
+            'Education',
          )
     ),
-    ('Server', (
-            'Liquor Ready',
-         )
+    ('Promo/Sales', (
+            'Gender',
+            'Age',
+            'Jacket Size',
+            'Dress Size',
+            'Shoe Size',
+            'Ethnicity',
+            'Eye Colour',
+            'Hair Colour',
+            'Hair Length',
+            'Swimwear Ready',
+            'Lingerie Ready',
+            'Liquor Certified',
+            'Gaming Certified',
+            'Acting Experience',
+            'Dance Experience',
+            'Access to Vehicle',
+            'Education',
+        )
+    ),
+    ('Flyers', (
+            'Gender',
+            'Jacket Size',
+            'Dress Size',
+            'Shoe Size',
+            'Ethnicity',
+            'Swimwear Ready',
+            'Liquor Certified',
+            'Gaming Certified',
+            'Access to Vehicle',
+            'Education',
+        )
     ),
 )

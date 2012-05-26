@@ -1,4 +1,4 @@
-SEX_CHOICES = ((1, 'Female',), (2, 'Male',),)
+GENDER_CHOICES = ((1, 'Female',), (2, 'Male',),)
 
 ETHNICITY_CHOICES = (
     ('America', (
@@ -36,7 +36,7 @@ ETHNICITY_CHOICES = (
     (18, 'Other'),
 )
 
-HAIR_COLOR_CHOICES = (
+HAIR_COLOUR_CHOICES = (
     (1, 'Blonde'),
     (2, 'Red'),
     (3, 'Brown'),
@@ -51,7 +51,7 @@ HAIR_LENGTH_CHOICES = (
     (3, 'Long'),
 )
 
-EYE_COLOR_CHOICES = (
+EYE_COLOUR_CHOICES = (
     (1, 'Black'),
     (2, 'Brown'),
     (3, 'Hazel'),
@@ -60,12 +60,24 @@ EYE_COLOR_CHOICES = (
     (6, 'Other'),
 )
 
-CUP_SIZE_CHOICES = (
-    (1, 'A'),
-    (2, 'B'),
-    (3, 'C'),
-    (4, 'D'),
-    (5, 'E'),
-)    
-    
+SKIN_COLOUR_CHOICES = (
+    (1, 'Dark Brown'),
+    (2, 'Brown'),
+    (3, 'Tan'),
+    (4, 'Olive'),
+    (5, 'White'),
+)
 
+_cup_sizes = ('AA', 'A', 'B', 'C', 'D', 'DD', 'E', 'EE', 'F', 'FF',
+              'G', 'GG', 'H', 'HH',)
+
+CUP_SIZE_CHOICES = tuple(zip(range(1, len(_cup_sizes)), _cup_sizes))
+
+
+_jacket_sizes = range(32, 62, 2)
+
+JACKET_SIZE_CHOICES = tuple(zip(range(1, len(_jacket_sizes)), _jacket_sizes))
+
+_dress_sizes = ['00'] + [str(n) for n in range(0, 20)]
+
+DRESS_SIZE_CHOICES = tuple(zip(range(1, len(_dress_sizes)), _dress_sizes))
