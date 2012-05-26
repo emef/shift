@@ -14,8 +14,8 @@ add_introspection_rules([], ["^shift\.location\.LocationField"])
 class EnsureDefaultsMiddleware:
     def __init__(self):
         self.ensure_groups(settings.GROUPS)
-        #self.ensure_attributes(settings.ATTRIBUTES)
-        #self.ensure_roles(settings.CONTRACTOR_ROLES)
+        self.ensure_attributes(settings.ATTRIBUTES)
+        self.ensure_roles(settings.CONTRACTOR_ROLES)
         raise MiddlewareNotUsed
 
     def mk_group(self, name, perms):
