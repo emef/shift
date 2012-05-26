@@ -11,7 +11,7 @@ from shift.users.models import ContractorRole
 from shift.users.models import INT_FIELD, FLOAT_FIELD, BOOL_FIELD, CHOICE_FIELD
 from shift.users.models import CHAR_FIELD, FIELD_TYPE_CHOICES
 
-import shift_settings as settings
+import shift.shift_settings as settings
 
 
 class JobForm(forms.ModelForm):
