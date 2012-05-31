@@ -1,3 +1,4 @@
+var console = console || {log: function(msg) {}};
 var nav_ids = {}
 
 function register_page(section, page) {

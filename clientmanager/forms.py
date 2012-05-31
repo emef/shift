@@ -8,8 +8,10 @@ from shift import choice_rassoc
 from shift.jobs.models import Job, Shift
 from shift.users.models import ContractorRole
 
-from shift.users.models import INT_FIELD, FLOAT_FIELD, BOOL_FIELD, CHOICE_FIELD
-from shift.users.models import CHAR_FIELD, FIELD_TYPE_CHOICES
+# import constants
+from shift.shift_settings import INT_FIELD, FLOAT_FIELD, BOOL_FIELD, CHOICE_FIELD
+from shift.shift_settings import CHAR_FIELD, attr_info
+from shift.users.models import FIELD_TYPE_CHOICES
 
 import shift.shift_settings as settings
 
@@ -52,10 +54,17 @@ def dyn_form(fields, data, fieldsets):
         def __init__(self, *args, **kwargs):
             super(_dyn_form, self).__init__(*args, **kwargs)
             for k,v in fields.items():
+                if k in data:
+                    v.initial = data[k]
                 self.fields[k] = v
                 
             for k,v in data.items():
-                self.data[k] = v
+                if k in fields:
+                    self.data[k] = v
+
+            print 'FIELDS', fields.keys()
+            print 'DATA:', data.items()
+            pprint(self.data)
                 
         def validate(self, post):
             for name,field in self.fields.items():
@@ -143,21 +152,29 @@ def mk_fields(field, role):
         return [mk_field(fname, CHOICE_FIELD, css_class, choices=choices)]
     else:
         return [mk_field(fname, ftype, css_class)]
-
-_ATTR_MAP = {}
-for grp_name, attrs in settings.ATTRIBUTES:
-    for attr in attrs:
-        _ATTR_MAP[attr[0]] = (grp_name, attr[1])
-        
-def attr_info(attr):
-    "returns (group_name, field_type)"
-    return _ATTR_MAP[attr]
     
 def join(lists):
     return reduce(lambda u,v: u + v, lists)
 
-def mk_role_forms():
+def mk_initial(shift):
+    if shift == None:
+        return {}
+    
+    initial = {}
+    for f in shift.filters.all():
+        t = f.type()
+        if t == INT_FIELD or t == FLOAT_FIELD:
+            minv, maxv = f.val()
+            initial[f.field_name] = '{0},{1}'.format(minv, maxv)
+        else:
+            initial[f.field_name] = f.val()
+
+    return initial
+            
+
+def mk_role_forms(shift=None):
     forms = []
+    initial = mk_initial(shift)
     for rname, attrs in settings.CONTRACTOR_ROLES:
         # fdict = { '<group_name>', [(<fname>, <ftype>), ... ], ... }
         fdict = {}
@@ -179,7 +196,9 @@ def mk_role_forms():
                 dynfieldsets.append( (grp_name, {'fields': newfields.keys()}) )
             
             
+#        print initial
+#        pprint(dynfields)
         forms.append( {'name': rname,
-                       'form': dyn_form(dynfields, {}, dynfieldsets)} )
-
+                       'form': dyn_form(dynfields, initial, dynfieldsets)} )
+        
     return forms

@@ -3,3 +3,5 @@
 
 .role-form { display: none; }
 .role-form.set { display: block; }
+
+#errors { color: red }

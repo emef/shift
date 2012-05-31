@@ -42,13 +42,17 @@ def job_edit(request, job_id):
     shift_form = ShiftForm()
 
     existing_shifts = [{'title': s.title,
-                        'form': ShiftForm(instance=s)} for s in job.shifts.all()]
+                        'form': ShiftForm(instance=s),
+                        'roles': mk_role_forms(s)} for s in job.shifts.all()]
 
+    # INCORPORATE EXISTING SHIFT DATA
+    
     data = {'job_title': job.title,
             'job_form': job_form,
-            'empty_shift': shift_form,
             'existing_shifts': existing_shifts,
-            'roles': mk_role_forms() }
+            'empty_roles': mk_role_forms(),
+            'empty_shift': shift_form,
+    }
     
     return render_page(request, 'clientmanager/job_edit.html', data)
 
@@ -62,8 +66,10 @@ def ajax_job_edit(request, job_id):
 
     existing = dict( (s.id, s) for s in job.shifts.all() )
     
-    for shift in json['shifts']:
-        shift_form = ShiftForm(shift['info'])
+    errors = {}
+    
+    for shift_json in json['shifts']:
+        shift_form = ShiftForm(shift_json['info'])
         if not shift_form.is_valid():
             pprint (shift_form.__dict__)
             break
@@ -78,9 +84,18 @@ def ajax_job_edit(request, job_id):
             
         shift.save()
 
+        filter_errors = shift.update_filters(shift_json['attrs'])
+
+        if len(filter_errors) > 0:
+            errors[shift.title] = filter_errors
+            
     Shift.objects.filter(id__in=existing.keys()).delete()
         
-    return json_response({'status': 'ok'})
+    if len(errors) == 0:
+        return json_response({'status': 'ok'})
+    else:
+        return json_response({'status': 'error',
+                              'errors': errors})
 
 @admin_required('clientmanager')
 def job_status(request, job_id):

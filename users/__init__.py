@@ -1,15 +1,10 @@
 from pprint import pprint
 
-
 from django.contrib.auth.models import Group, Permission, ContentType
 from django.core.exceptions import MiddlewareNotUsed
 from shift import choice_rassoc
 import shift.shift_settings as settings
-from shift.users.models import Attribute, AttributeGroup, ContractorRole, FIELD_TYPE_CHOICES
-
-from south.modelsinspector import add_introspection_rules
-add_introspection_rules([], ["^shift\.location\.LocationField"])
-
+from shift.users.models import Attribute, ContractorRole, FIELD_TYPE_CHOICES, CHOICE_FIELD
 
 class EnsureDefaultsMiddleware:
     def __init__(self):
@@ -36,10 +31,10 @@ class EnsureDefaultsMiddleware:
             if not Group.objects.filter(name=name).exists():
                 self.mk_group(name, perms)
 
-    def mk_attribute(self, field_name, field_type, group):
+    def mk_attribute(self, field_name, field_type):
         if isinstance(field_type, tuple):
             choices = str(field_type)
-            field_type = 'choices'
+            field_type = CHOICE_FIELD
         else:
             choices = None
             
@@ -48,18 +43,16 @@ class EnsureDefaultsMiddleware:
         attr = Attribute.objects.create(field_name=field_name,
                                         field_type=field_id,
                                         is_private=False,
-                                        choices_str=choices,
-                                        group=group)
+                                        choices_str=choices)
         
         
     def ensure_attributes(self, attributes):
         for name, attrs in attributes:
             keys = [attr[0] for attr in attrs]
-            group, created = AttributeGroup.objects.get_or_create(name=name)
-            existing = set(attr.field_name for attr in group.attributes.all())
+            existing = set(attr.field_name for attr in Attribute.objects.all())
             for field_name, field_type in attrs:
                 if not field_name in existing:
-                    self.mk_attribute(field_name, field_type, group)
+                    self.mk_attribute(field_name, field_type)
                 else:
                     existing.remove(field_name)
         

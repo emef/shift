@@ -20,6 +20,8 @@
   Click a box below to edit its contents.
 </p>
 
+<p id="errors"></p>
+
 <div class="toggle-able shift-aligned">
   <div><h4>Basic Job Info</h4></div>
   <form id="basic-form">
@@ -40,7 +42,7 @@
 	<span>Shift: {{ shift.title }}</span>
 	<a class="deletelink" href="javascript:void(0)">delete</a>
       </div>
-      {% include "clientmanager/shift_form.html" with form=shift.form role_forms=role_forms %}
+      {% include "clientmanager/shift_form.html" with form=shift.form roles=shift.roles %}
     </div>
     {% endfor %}
   </div>
@@ -50,7 +52,7 @@
       <span>Add a Shift</span>
       <a class="deletelink" style="visibility: hidden" href="javascript:void(0)">delete</a>
     </div>
-    {% include "clientmanager/shift_form.html" with form=empty_shift roles=roles %}
+    {% include "clientmanager/shift_form.html" with form=empty_shift roles=empty_roles %}
   </div>
 </div>
 

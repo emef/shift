@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
+from shift.shift_settings import INT_FIELD,FLOAT_FIELD,BOOL_FIELD,CHOICE_FIELD,CHAR_FIELD
 from shift import choice_assoc
-from shift import location
 
 class Contractor(models.Model):
     user = models.OneToOneField(User)
@@ -11,10 +11,10 @@ class Contractor(models.Model):
     payment_email = models.EmailField()
     phone = models.CharField(max_length=20)
     default_photo = models.ForeignKey('ContractorPhoto', related_name='default_photo', null=True)
-    location = location.LocationField(max_length=100, blank=True)
+    location = models.CharField(max_length=200)
     
     def __unicode__(self):
-        return 'Contractor<%s %s>' % (self.user.first_name, self.user.last_name)
+        return '%s %s' % (self.user.first_name, self.user.last_name)
 
 class ContractorPhoto(models.Model):
     contractor = models.ForeignKey('Contractor', related_name='photos')
@@ -26,13 +26,6 @@ class ContractorEducation(models.Model):
     degree = models.CharField(max_length=100)
     is_major = models.BooleanField()
     description = models.CharField(max_length=300)
-
-INT_FIELD = 'integer'
-FLOAT_FIELD = 'float'
-BOOL_FIELD = 'bool'
-CHOICE_FIELD = 'choices'
-CHAR_FIELD = 'char'
-
     
 FIELD_TYPE_CHOICES = (
     (1, INT_FIELD),
@@ -43,7 +36,6 @@ FIELD_TYPE_CHOICES = (
 )
     
 class Attribute(models.Model):
-    group = models.ForeignKey('AttributeGroup', related_name='attributes')
     field_name = models.CharField(max_length=100)
     field_type = models.IntegerField(choices=FIELD_TYPE_CHOICES)
     choices_str = models.CharField(max_length=300, null=True, blank=True)
@@ -56,9 +48,6 @@ class Attribute(models.Model):
     def choices(self):
         return eval(self.choices_str)
 
-class AttributeGroup(models.Model):
-    name = models.CharField(max_length=100)
-
 class ContractorRole(models.Model):
     name = models.CharField(max_length=100)
     attributes = models.ManyToManyField('Attribute')
@@ -69,6 +58,7 @@ class ContractorRole(models.Model):
 class ContractorAttributeVal(models.Model):
     attribute = models.ForeignKey('Attribute')
     contractor = models.ForeignKey('Contractor', related_name='attributes')
+    char_val = models.CharField(max_length=100, null=True, blank=True)
     int_val = models.IntegerField(null=True, blank=True)
     float_val = models.FloatField(null=True, blank=True)
     bool_val = models.NullBooleanField(blank=True)
@@ -83,7 +73,7 @@ class ContractorAttributeVal(models.Model):
         field_name = self.attribute.field_name
         
         # normal values
-        keys = ['int_val', 'float_val', 'bool_val']
+        keys = ['char_val', 'int_val', 'float_val', 'bool_val']
         for k in keys:
             val = getattr(self, k)
             if val != None:

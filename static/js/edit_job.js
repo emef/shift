@@ -47,11 +47,20 @@ function init_shift(shift) {
 	var role = $(this).find("option:selected").text();
 	set_role_form(shift, role);
     }).change();
-    shift.find("input[name=start], input[name=end]").datetimepicker({
-	dateFormat:"yy-mm-dd",
-	timeFormat:"h:m:s",
-	ampm: true
+    shift.find("input[name=start], input[name=end]").each(function() {
+	var input = $(this);
+	var newinput = $("<input type='text' />");
+	newinput.attr('name', input.attr('name'));
+	newinput.val(input.val());
+	newinput.insertBefore(input);
+	newinput.datetimepicker({
+	     dateFormat:"yy-mm-dd",
+	     timeFormat:"h:m:s",
+	     ampm: true
+	});
+	input.remove();
     });
+    
     shift.find("input.range").each(function() {
 	var hidden = $(this);
 	var name = $(this).attr("name");
@@ -59,13 +68,22 @@ function init_shift(shift) {
 	var max = $("<input type='text' name='"+"max-"+name+"' />");
 	var label = $("<label>" + name + "</label>");
 	var li = $("<li />").append(label);
+	
+	if (hidden.val().length != 0) {
+	    var vals = hidden.val().split(',');
+	    min.val(vals[0]);
+	    max.val(vals[1]);
+	}
+	
 	if (hidden.hasClass("male")) li.addClass("male");
 	if (hidden.hasClass("female")) li.addClass("female");
+	
 	var update = function() {
 	    hidden.val(min.val() + "," + max.val());
 	}
 	min.change(update);
 	max.change(update);
+	
 	li.append(min);
 	li.append(max);
 	$(this).parent().append(li);
@@ -102,15 +120,18 @@ function init_shift(shift) {
     });
 }
 
+function valid_key(key) {
+    return ! /(min-)|(max-)/.test(key)
+}
+
 function shift_to_obj() {
     var shift = $(this);
     var info = $(shift.find("form")[0]).toObject();
     var attrs = {};
     get_attrs(shift).find("form.set").each(function() {
-	console.log($(this));
 	var obj = $(this).toObject();
 	for (var key in obj) {
-	    if (obj[key] != "-1" && obj[key] != undefined) 
+	    if (valid_key(key) && obj[key] != "-1" && obj[key] != undefined ) 
 		attrs[key] = obj[key];
 	}
     });
@@ -126,9 +147,32 @@ function save() {
 	type: 'POST',
 	dataType: 'json',
 	data: {json: JSON.stringify(data)},
-	success: function(r) { 
-	    window.location = ''
-	    console.log(data, r);
+	success: function(r) {
+	    $('html').animate({scrollTop:0}, 'fast');
+	    $('body').animate({scrollTop:0}, 'fast');
+	    console.log(r);
+	    if (r.status == 'ok') {
+		$('#errors').html('<h3>Successfuly saved job info</h3>');
+		$('#errors').fadeOut(2000, function() {
+		    $('#errors').html('').show();
+		});
+	    } else {
+		$('#errors').children().remove();
+		for (var title in r.errors) {
+		    var div = $("<div />");
+		    var h4 = $("<h4 />");
+		    var ul = $("<ul />");
+		    h4.text(title);
+		    div.append(h4);
+		    div.append(ul);
+		    $('#errors').append(div);
+		    for (var i=0; i<r.errors[title].length; i++) {
+			var li = $("<li />");
+			li.text(r.errors[title][i]);
+			ul.append(li);
+		    }
+		}
+	    }
 	}
     });
 }

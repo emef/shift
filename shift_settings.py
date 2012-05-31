@@ -1,5 +1,10 @@
 from shift.users.choices import *
-from shift.users.models import INT_FIELD, FLOAT_FIELD, BOOL_FIELD, CHOICE_FIELD, CHAR_FIELD
+
+CHAR_FIELD = 'char'
+INT_FIELD = 'int'
+FLOAT_FIELD = 'float'
+BOOL_FIELD = 'bool'
+CHOICE_FIELD = 'choice'
 
 # Groups:
 # These define the django.contrib.auth groups that are
@@ -190,3 +195,13 @@ CONTRACTOR_ROLES = (
         )
     ),
 )
+
+
+_ATTR_MAP = {}
+for grp_name, attrs in ATTRIBUTES:
+    for attr in attrs:
+        _ATTR_MAP[attr[0]] = (grp_name, attr[1])
+        
+def attr_info(attr):
+    "returns (group_name, field_type)"
+    return _ATTR_MAP.get(attr, None)
