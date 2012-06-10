@@ -1,1 +1,40 @@
 {% extends "shiftleader/shiftleader_base.html" %}
+
+{% block main %}
+
+<h2>{{ shift }}</h2>
+<h4>Shift Details:</h4>
+<div class="line-items">
+  <div>
+    <span>Role:</span>
+    {{ shift.role }}
+  </div>
+  <div>
+    <span>Address: </span>
+    {{ shift.address }}
+  </div>
+  <div>
+    <span>Starts:</span>
+    {{ shift.start }}
+  </div>
+  <div>
+    <span>Ends:</span>
+    {{ shift.end }}
+  </div>
+  <div>
+    <span>Pays:</span>
+    {{ shift.pays }}
+  </div>
+</div>
+
+<br />
+
+<h4>Candidates</h4>
+{% for candidate in candidates %}
+<div class="candidate">
+  {{ candidate.contractor }}
+</div>
+{% endfor %}
+
+
+{% endblock main %}

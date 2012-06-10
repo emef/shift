@@ -1,0 +1,10 @@
+{% for item in jobs %}
+<div>
+  <h3><a href="/shift-leader/open-jobs/job-detail/{{item.job.id}}/">{{item.job}}</a></h4>
+  <ul>
+    {% for shift in item.shifts %}
+    <li> <a href="/shift-leader/open-jobs/shift-detail/{{shift.id}}/">{{shift}}</a> </li>
+    {% endfor %}
+  </ul>
+</div>
+{% endfor %}

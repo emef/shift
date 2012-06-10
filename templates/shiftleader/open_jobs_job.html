@@ -1,1 +1,38 @@
 {% extends "shiftleader/shiftleader_base.html" %}
+
+{% block main %}
+<h2>{{ job }}</h2>
+<h4>Job Details:</h4>
+<div class="line-items">
+  <div>
+    <span>Client:</span>
+    {{ job.client.first_name }} {{ job.client.last_name }}
+  </div>
+  <div>
+    <span>Description:</span>
+    {{ job.description }}
+  </div>
+  <div>
+    <span>Amount Quoted:</span>
+    {{ job.amount_quoted }}
+  </div>
+  <div>
+    <span>Amount Received:</span>
+    {{ job.amount_received }}
+  </div>
+</div>
+
+<br />
+
+<h4>Open Shifts:</h4>
+<div class="line-items">
+  {% for shift in job.open_shifts %}
+  <div>
+    <span><a href="/shift-leader/open-jobs/shift-detail/{{ shift.id }}/">{{shift}}</a></span>
+    <span>{{ shift.start }}</span>
+    <span>{{ shift.end }}</span>
+  </div>
+  {% endfor %}
+</div>
+
+{% endblock %}

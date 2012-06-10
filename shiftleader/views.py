@@ -1,14 +1,30 @@
-from shift import render_page, admin_required
+from pprint import pprint
+
+from django.http import Http404
+from django.shortcuts import get_object_or_404
+from shift.jobs.models import Job, Shift
+from shift import render_page, admin_required, choice_rassoc
+
+import shift_settings as settings
+
+# constants
+from shift.jobs.models import JOB_OPEN, JOB_STATUS_CHOICES
 
 @admin_required('shiftleader')
 def control_panel(request):
-    print request.page_info
     return render_page(request, 'shiftleader/control_panel.html')
 
 @admin_required('shiftleader')
 def open_jobs_list(request):
-    print 'hi'
-    return render_page(request, 'shiftleader/open_jobs_list.html')
+    open_id = choice_rassoc(JOB_OPEN, JOB_STATUS_CHOICES)
+    qs = Job.objects.select_related().filter(status=open_id)
+    jobs = []
+    for j in qs.all():
+        shifts = j.open_shifts()
+        if len(shifts):
+            jobs.append( { 'job': j, 'shifts': shifts } )
+    
+    return render_page(request, 'shiftleader/open_jobs_list.html', {'jobs': jobs})
 
 @admin_required('shiftleader')
 def open_jobs_calendar(request):
@@ -20,11 +36,18 @@ def open_jobs_gantt(request):
 
 @admin_required('shiftleader')
 def open_jobs_job(request, job_id):
-    return render_page(request, 'shiftleader/open_jobs_job.html')
+    try:
+        job = Job.objects.select_related().get(id=job_id)
+    except Job.DoesNotExist:
+        raise Http404
+    return render_page(request, 'shiftleader/open_jobs_job.html', {'job': job})
 
 @admin_required('shiftleader')
 def open_jobs_shift(request, shift_id):
-    return render_page(request, 'shiftleader/open_jobs_shift.html')
+    shift = get_object_or_404(Shift, id=shift_id)
+    candidates = shift.candidates(settings.MAX_CANDIDATES)
+    data = { 'shift': shift, 'candidates': candidates }
+    return render_page(request, 'shiftleader/open_jobs_shift.html', data)
 
 @admin_required('shiftleader')
 def contractors_search(request, query):

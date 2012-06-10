@@ -82,7 +82,7 @@ a.deletelink:link, a.deletelink:visited {
     margin-top: 10px;
 }
 			      
-
+.line-items > div > span { display: inline-block; width: 120px; }
 
 /* css for timepicker */
 .ui-timepicker-div .ui-widget-header { margin-bottom: 8px; }

@@ -142,22 +142,24 @@ function save() {
     var data = {}
     data.basic = $("#basic-form").toObject();
     data.shifts = $.makeArray($(".job-shift").map(shift_to_obj));
+    $('html').animate({scrollTop:0}, 'fast');
+    $('body').animate({scrollTop:0}, 'fast');
+    $('#errors').text('loading... please wait');
     $.ajax({
 	url: window.location.path,
 	type: 'POST',
 	dataType: 'json',
 	data: {json: JSON.stringify(data)},
 	success: function(r) {
-	    $('html').animate({scrollTop:0}, 'fast');
-	    $('body').animate({scrollTop:0}, 'fast');
-	    console.log(r);
+	    console.log(data);
+	    $('#errors').html('');
+	    $('#errors').children().remove();
 	    if (r.status == 'ok') {
 		$('#errors').html('<h3>Successfuly saved job info</h3>');
 		$('#errors').fadeOut(2000, function() {
 		    $('#errors').html('').show();
 		});
 	    } else {
-		$('#errors').children().remove();
 		for (var title in r.errors) {
 		    var div = $("<div />");
 		    var h4 = $("<h4 />");

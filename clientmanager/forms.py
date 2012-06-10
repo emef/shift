@@ -24,7 +24,7 @@ class ShiftForm(forms.ModelForm):
     id = forms.IntegerField(required=False, widget=forms.HiddenInput())
     class Meta:
         model = Shift
-        exclude = ('job',)
+        exclude = ('job', 'contractor', 'standby_contractors',)
         
     class Media:
         js = (
@@ -62,10 +62,7 @@ def dyn_form(fields, data, fieldsets):
                 if k in fields:
                     self.data[k] = v
 
-            print 'FIELDS', fields.keys()
-            print 'DATA:', data.items()
-            pprint(self.data)
-                
+                    
         def validate(self, post):
             for name,field in self.fields.items():
                 try:
@@ -84,6 +81,12 @@ def mk_null_choices(choices):
     return (BLANK_CHOICE,) + choices
 
 
+NULL_BOOL_CHOICES = (
+    (1, 'N/A'),
+    (2, 'Yes'),
+    (3, 'No'),
+)
+
 def mk_role_form(role):
     fields = { }
     fieldsets = []
@@ -99,7 +102,7 @@ def mk_role_form(role):
             is_range = True
             field_class = forms.FloatField
         elif ftype == BOOL_FIELD:
-            fields[fname] = forms.NullBooleanField(required=False)
+            fields[fname] = forms.NullBooleanField(required=False, choices=NULL_BOOL_CHOICES)
             fieldsets.append( (None, {'fields': [fname]}) )
         elif ftype == CHOICE_FIELD:
             choices = mk_null_choices(attr.choices)
@@ -122,14 +125,18 @@ def mk_fields(field, role):
         INT_FIELD: (forms.IntegerField, forms.HiddenInput),
         FLOAT_FIELD: (forms.FloatField, forms.HiddenInput),
         CHAR_FIELD: (forms.CharField, forms.TextInput),
-        BOOL_FIELD: (forms.NullBooleanField, forms.NullBooleanSelect),
+        BOOL_FIELD: (forms.IntegerField, forms.Select),
         CHOICE_FIELD: (forms.ChoiceField, forms.Select),
     }
     
     def mk_field (name, ftype, css_class, **kwargs): 
         fklass, wklass = FIELD_MAP[ftype]
         attrs = {'class': css_class}
-        return (name, fklass(required=False, widget=wklass(attrs=attrs), **kwargs))
+        if ftype == BOOL_FIELD:
+            w = wklass(attrs=attrs, choices=NULL_BOOL_CHOICES)
+        else:
+            w = wklass(attrs=attrs)
+        return (name, fklass(required=False, widget=w, **kwargs))
     
     def mk_range(fname, ftype, css_class):
         css_class = css_class + ' range'
@@ -169,6 +176,7 @@ def mk_initial(shift):
         else:
             initial[f.field_name] = f.val()
 
+    pprint(initial)
     return initial
             
 

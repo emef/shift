@@ -1,5 +1,7 @@
 from shift.users.choices import *
 
+MAX_CANDIDATES = 10
+
 CHAR_FIELD = 'char'
 INT_FIELD = 'int'
 FLOAT_FIELD = 'float'

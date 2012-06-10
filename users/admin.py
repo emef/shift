@@ -136,10 +136,6 @@ class AttributeInline(admin.StackedInline):
     extra = 3
     
 class ContractorAdminForm(UserAdminForm):
-    def __init__(self, *args, **kwargs):
-        super(ContractorAdminForm, self).__init__(*args, **kwargs)
-        self['roles'].field.initial = [ContractorRole.objects.get(name='default').id]
-    
     class Meta:
         model = Contractor
         extra = 0
@@ -151,7 +147,7 @@ class ContractorAdmin(admin.ModelAdmin):
     exclude = ('user',)
     form = ContractorAdminForm
     #inlines = [PhotoInline, AttributesInline]
-    inlines = [PhotoInline, AttributeInline]
+    inlines = [PhotoInline]
     fieldsets = (
         ('User Info', {
                 'fields': ('username', 'password', 'first_name', 'last_name'),

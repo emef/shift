@@ -11,6 +11,7 @@ admin.autodiscover()
 # to the project's homepage.
 
 urlpatterns = patterns("",
+    url("^google53421aa8d9284b52.html", direct_to_template, {"template": "google.html"}),
     ("^admin/", include(admin.site.urls)),
 
     # We don't want to presume how your homepage works, so here are a

@@ -1,14 +1,14 @@
 from django.db import models
 from django.contrib.auth.models import User
-from shift.users.models import ContractorRole
+from shift.users.models import ContractorRole, Contractor
 from shift.shift_settings import attr_info
 from shift import choice_assoc
 
 from shift.shift_settings import CHAR_FIELD,INT_FIELD,FLOAT_FIELD,BOOL_FIELD,CHOICE_FIELD
 
 BOOL_MAP = {
-    1: True,
-    2: False,
+    2: True,
+    3: False,
 }
 
 JOB_OPEN = 'open'
@@ -34,14 +34,19 @@ class Job(models.Model):
     status = models.IntegerField(max_length=100, choices=JOB_STATUS_CHOICES, default=1)
 
     def __unicode__(self):
-        return 'Job<{0}>'.format(self.title)
+        return self.title
 
+    def open_shifts(self):
+        return filter(lambda u: not u.is_assigned, self.shifts.all())
+    
 class JobFile(models.Model):
     job = models.ForeignKey('Job', related_name='files')
     file = models.FileField(upload_to='jobfiles')
 
 class Shift(models.Model):
     job = models.ForeignKey('Job', related_name='shifts')
+    contractor = models.ForeignKey(Contractor, related_name='shifts', null=True)
+    standby_contractors = models.ManyToManyField(Contractor, related_name='standby_shifts')
     role = models.ForeignKey(ContractorRole)
     title = models.CharField(max_length=150)
     start = models.DateTimeField()
@@ -51,6 +56,10 @@ class Shift(models.Model):
     
     def __unicode__(self):
         return self.title
+
+    @property
+    def is_assigned(self):
+        return self.contractor != None
 
     def update_filters(self, attrs):
         self.filters.all().delete()
@@ -86,8 +95,11 @@ class Shift(models.Model):
                     errors.append('{0} had invalid values ({1})'.format(field_name, field_val))
                     continue
             elif field_type == BOOL_FIELD:
-                if field_val in BOOL_MAP:
-                    filter.bool = BOOL_MAP[field_val]
+                bool_val = int(field_val)
+                print bool_val, bool_val in BOOL_MAP
+                if bool_val in BOOL_MAP:
+                    print 'set!'
+                    filter.bool = BOOL_MAP[bool_val]
                 else:
                     # ignore the value, it is set to Unknown in the form
                     continue
@@ -106,6 +118,9 @@ class Shift(models.Model):
             
         self.save()
         return errors
+
+    def candidates(self, max_candidates):
+        return [{'contractor': c, 'score': 1} for c in Contractor.objects.all()]
     
 
 class ShiftFilter(models.Model):
@@ -142,7 +157,7 @@ class ShiftFilter(models.Model):
         elif t == FLOAT_FIELD:
             return (self.min_float, self.max_float)
         elif t == BOOL_FIELD:
-            return self.bool
+            return 2 if self.bool else 3
         elif t == CHOICE_FIELD:
             return self.choice
         else:
@@ -152,6 +167,8 @@ class ShiftFilter(models.Model):
         if self.type() == CHOICE_FIELD:
             grp, choices = attr_info(self.field_name)
             return choice_assoc(self.choice, choices)
+        elif self.type() == BOOL_FIELD:
+            return self.bool
         else:
             return self.val()
         

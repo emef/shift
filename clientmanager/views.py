@@ -71,9 +71,10 @@ def ajax_job_edit(request, job_id):
     for shift_json in json['shifts']:
         shift_form = ShiftForm(shift_json['info'])
         if not shift_form.is_valid():
-            pprint (shift_form.__dict__)
+            title = shift_form.data['title']
+            errors[title] = ['{0}: {1}'.format(f, e[0]) for f,e in shift_form.errors.items()]
             break
-        
+            
         shift = shift_form.save(commit=False)
         shift.job = job
         
