@@ -5,7 +5,7 @@ from django.shortcuts import get_object_or_404
 from shift.jobs.models import Job, Shift
 from shift import render_page, admin_required, choice_rassoc
 
-import shift_settings as settings
+import shift.shift_settings as settings
 
 # constants
 from shift.jobs.models import JOB_OPEN, JOB_STATUS_CHOICES
