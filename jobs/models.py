@@ -68,7 +68,10 @@ class Shift(models.Model):
         for f in fs:
             if f.field_name in attrs and f.satisfied(attrs[f.field_name].val()):
                 score += attr_weight(f.field_name)
-        return (100*score) / len(fs)
+        if len(fs):
+            return (100*score) / len(fs)
+        else:
+            return 100
     
     def candidates(self, maximum):
         qs = Contractor.objects.select_related().filter(roles=self.role)
