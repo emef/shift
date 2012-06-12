@@ -44,7 +44,7 @@ function init_shift(shift) {
 	shift.remove();
     });
     shift.find("select[name=role]").change(function () {
-	var role = $(this).find("option:selected").text();
+	var role = $(this).find("option:selected").text().replace('/', '-');
 	set_role_form(shift, role);
     }).change();
     shift.find("input[name=start], input[name=end]").each(function() {
@@ -55,8 +55,7 @@ function init_shift(shift) {
 	newinput.insertBefore(input);
 	newinput.datetimepicker({
 	     dateFormat:"yy-mm-dd",
-	     timeFormat:"h:m:s",
-	     ampm: true
+	     timeFormat:"h:m:s"
 	});
 	input.remove();
     });
@@ -109,7 +108,6 @@ function init_shift(shift) {
 	    attrs.find("li.male, li.female").show();
 	}
     });
-    g = modal;
     modal.click(function () {
 	get_attrs(shift).modal({
 	    persist: true,

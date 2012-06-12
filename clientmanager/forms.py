@@ -204,9 +204,7 @@ def mk_role_forms(shift=None):
                 dynfieldsets.append( (grp_name, {'fields': newfields.keys()}) )
             
             
-#        print initial
-#        pprint(dynfields)
-        forms.append( {'name': rname,
+        forms.append( {'name': rname.replace('/', '-'),
                        'form': dyn_form(dynfields, initial, dynfieldsets)} )
         
     return forms
