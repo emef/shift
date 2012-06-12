@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
-from shift.users.models import ContractorRole, Contractor
-from shift.shift_settings import attr_info
+from shift.users.models import Contractor, ContractorRole
+from shift.shift_settings import attr_info, attr_weight
 from shift import choice_assoc
 
 from shift.shift_settings import CHAR_FIELD,INT_FIELD,FLOAT_FIELD,BOOL_FIELD,CHOICE_FIELD
@@ -61,6 +61,40 @@ class Shift(models.Model):
     def is_assigned(self):
         return self.contractor != None
 
+    def score(self, contractor):
+        score = 0
+        attrs = dict((a.attribute.field_name, a) for a in contractor.attributes.all())
+        fs = list(self.filters.all())
+        for f in fs:
+            if f.field_name in attrs and f.satisfied(attrs[f.field_name].val()):
+                score += attr_weight(f.field_name)
+        return (100*score) / len(fs)
+    
+    def candidates(self, maximum):
+        qs = Contractor.objects.select_related().filter(roles=self.role)
+        candidates = []
+        
+        # prune by availability
+        for contractor in qs.all():
+            overlap = False
+            for shift in contractor.shifts.all():
+                # test overlap
+                if (shift.start <= self.end) and (shift.end >= self.start):
+                    overlap = True
+                    break
+            if not overlap:
+                candidates.append(contractor)
+                
+        # now score and sort
+        scored = [(self.score(c), c) for c in candidates]
+        scored.sort(reverse=True)
+
+        # convert to dict
+        scored = map(lambda xs: dict(zip(('score', 'contractor'), xs)), scored)
+        
+        return scored[:maximum]
+                    
+    
     def update_filters(self, attrs):
         self.filters.all().delete()
         errors = []
@@ -69,7 +103,7 @@ class Shift(models.Model):
             try:
                 _, field_type = attr_info(field_name)
             except:
-                print field_name
+                print 'INVALID FIELD: {0}'.format(field_name)
                 return
             if attr_info == None:
                 errors.append('{0} is not a valid field'.format(field_name))
@@ -96,9 +130,7 @@ class Shift(models.Model):
                     continue
             elif field_type == BOOL_FIELD:
                 bool_val = int(field_val)
-                print bool_val, bool_val in BOOL_MAP
                 if bool_val in BOOL_MAP:
-                    print 'set!'
                     filter.bool = BOOL_MAP[bool_val]
                 else:
                     # ignore the value, it is set to Unknown in the form
@@ -118,11 +150,7 @@ class Shift(models.Model):
             
         self.save()
         return errors
-
-    def candidates(self, max_candidates):
-        return [{'contractor': c, 'score': 1} for c in Contractor.objects.all()]
     
-
 class ShiftFilter(models.Model):
     shift = models.ForeignKey('Shift', related_name='filters')
     field_name = models.CharField(max_length=100)
@@ -171,6 +199,21 @@ class ShiftFilter(models.Model):
             return self.bool
         else:
             return self.val()
+
+    def satisfied(self, val):
+        t = self.type()
+        if t == INT_FIELD:
+            return (val >= self.min_int) and (val <= self.max_int)
+        elif t == FLOAT_FIELD:
+            return (val >= self.min_float) and (val <= self.max_float)
+        elif t == CHAR_FIELD:
+            return val == self.char 
+        elif t == CHOICE_FIELD:
+            return val == self.choice
+        elif t == BOOL_FIELD:
+            return val == self.bool
+        else:
+            return ValueError
         
         
     def __unicode__(self):

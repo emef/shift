@@ -61,12 +61,14 @@ ATTRIBUTES = (
             ('Height', FLOAT_FIELD),
             ('Weight', FLOAT_FIELD),
             ('Bust', FLOAT_FIELD),
-            ('Chest', FLOAT_FIELD),
             ('Cup Size', CUP_SIZE_CHOICES),
             ('Waist', FLOAT_FIELD),
             ('Hips', FLOAT_FIELD),
             ('Inseam', FLOAT_FIELD),
             ('Jacket Size', JACKET_SIZE_CHOICES),
+            ('Sleeve Length', FLOAT_FIELD),
+            ('Neck', FLOAT_FIELD),
+            ('Chest', FLOAT_FIELD),
             ('Dress Size', FLOAT_FIELD),
             ('Shoe Size', FLOAT_FIELD),
         ),
@@ -83,8 +85,8 @@ ATTRIBUTES = (
             ('Nude Ready', BOOL_FIELD),
             ('Swimwear Ready', BOOL_FIELD),
             ('Lingerie Ready', BOOL_FIELD),
-            ('Liquor Certified', BOOL_FIELD),
-            ('Gaming Certified', BOOL_FIELD),
+            ('Liquor Ready', BOOL_FIELD),
+            ('Gaming Ready', BOOL_FIELD),
             ('Acting Experience', BOOL_FIELD),
             ('Dance Experience', BOOL_FIELD),
             ('Access to Vehicle', BOOL_FIELD),
@@ -96,7 +98,7 @@ ATTRIBUTES = (
 
 
 
-MALE_ONLY_ATTRIBUTES = ('Chest', 'Inseam', 'Jacket Size', )
+MALE_ONLY_ATTRIBUTES = ('Chest', 'Neck', 'Inseam', 'Jacket Size', 'Sleeve Length')
 FEMALE_ONLY_ATTRIBUTES = ('Bust', 'Hips', 'Cup Size', 'Dress Size',)
 
 
@@ -128,8 +130,8 @@ CONTRACTOR_ROLES = (
             'Nude Ready',
             'Swimwear Ready',
             'Lingerie Ready',
-            'Liquor Certified',
-            'Gaming Certified',
+            'Liquor Ready',
+            'Gaming Ready',
             'Acting Experience',
             'Dance Experience',
             'Access to Vehicle',
@@ -155,8 +157,8 @@ CONTRACTOR_ROLES = (
             'Hair Length',
             'Swimwear Ready',
             'Lingerie Ready',
-            'Liquor Certified',
-            'Gaming Certified',
+            'Liquor Ready',
+            'Gaming Ready',
             'Acting Experience',
             'Dance Experience',
             'Access to Vehicle',
@@ -175,8 +177,8 @@ CONTRACTOR_ROLES = (
             'Hair Length',
             'Swimwear Ready',
             'Lingerie Ready',
-            'Liquor Certified',
-            'Gaming Certified',
+            'Liquor Ready',
+            'Gaming Ready',
             'Acting Experience',
             'Dance Experience',
             'Access to Vehicle',
@@ -190,12 +192,44 @@ CONTRACTOR_ROLES = (
             'Shoe Size',
             'Ethnicity',
             'Swimwear Ready',
-            'Liquor Certified',
-            'Gaming Certified',
+            'Liquor Ready',
+            'Gaming Ready',
             'Access to Vehicle',
             'Education',
         )
     ),
+)
+
+ATTRIBUTE_WEIGHTS = (
+    ('Gender', 1),
+    ('Age', 1),
+    ('Height', 1),
+    ('Weight', 1),
+    ('Bust', 1),
+    ('Cup Size', 1),
+    ('Waist', 1),
+    ('Hips', 1),
+    ('Inseam', 1),
+    ('Jacket Size', 1),
+    ('Sleeve Length', 1),
+    ('Neck', 1),
+    ('Chest', 1),
+    ('Dress Size', 1),
+    ('Shoe Size', 1),
+    ('Ethnicity', 1),
+    ('Skin Colour', 1),
+    ('Eye Colour', 1),
+    ('Hair Colour', 1),
+    ('Hair Length', 1),
+    ('Nude Ready', 1),
+    ('Swimwear Ready', 1),
+    ('Lingerie Ready', 1),
+    ('Liquor Ready', 1),
+    ('Gaming Ready', 1),
+    ('Acting Experience', 1),
+    ('Dance Experience', 1),
+    ('Access to Vehicle', 1),
+    ('Education', 1),
 )
 
 
@@ -207,3 +241,10 @@ for grp_name, attrs in ATTRIBUTES:
 def attr_info(attr):
     "returns (group_name, field_type)"
     return _ATTR_MAP.get(attr, None)
+
+_ATTR_WEIGHTS = {}
+for field_name, weight in ATTRIBUTE_WEIGHTS:
+    _ATTR_WEIGHTS[field_name] = weight
+    
+def attr_weight(attr):
+    return _ATTR_WEIGHTS.get(attr, None)

@@ -84,6 +84,14 @@ a.deletelink:link, a.deletelink:visited {
 			      
 .line-items > div > span { display: inline-block; width: 120px; }
 
+.candidate-table {
+    text-align: center;
+}
+
+.candidate-table td, .candidate-table th {
+    padding: 1px 7px;
+}
+
 /* css for timepicker */
 .ui-timepicker-div .ui-widget-header { margin-bottom: 8px; }
 .ui-timepicker-div dl { text-align: left; }
@@ -91,3 +99,4 @@ a.deletelink:link, a.deletelink:visited {
 .ui-timepicker-div dl dd { margin: 0 10px 10px 65px; }
 .ui-timepicker-div td { font-size: 90%; }
 .ui-tpicker-grid-label { background: none; border: none; margin: 0; padding: 0; }
+

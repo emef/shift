@@ -2,11 +2,30 @@
 
 {% block main %}
 
+{% if errors %}
+<ul class="errorlist">
+  {% for item in errors %}
+  {{ item.contractor }}
+  <ul>
+    {% for err in item.errors %}
+    <li>{{err}}</li>
+    {% endfor %}
+  </ul>
+  {% endfor %}
+</ul>
+{% endif %}
+
+{% if success %}
+<div>
+  All contractor info was successfully imported to the database
+</div>
+{% endif %}
+
 <form method="POST" action="/talent-manager/upload/" enctype="multipart/form-data">
   {% csrf_token %}
-  <h3>Upload Contractors (.xls or .xlsx)</h3>
+  <h3>Update Contractors from Google Docs</h3>
   {{ form.as_table }}
   <br />
-  <input type="submit" name="submit" value="upload" />
+  <input type="submit" name="submit" value="Update Contractors" />
 </form>
 {% endblock %}

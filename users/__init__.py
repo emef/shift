@@ -47,16 +47,18 @@ class EnsureDefaultsMiddleware:
         
         
     def ensure_attributes(self, attributes):
+        existing = set(attr.field_name for attr in Attribute.objects.all())
+        
         for name, attrs in attributes:
             keys = [attr[0] for attr in attrs]
-            existing = set(attr.field_name for attr in Attribute.objects.all())
             for field_name, field_type in attrs:
                 if not field_name in existing:
+                    print 'making %s' % field_name
                     self.mk_attribute(field_name, field_type)
                 else:
                     existing.remove(field_name)
         
-            Attribute.objects.filter(field_name__in=existing).delete()
+        Attribute.objects.filter(field_name__in=existing).delete()
             
                 
     def mk_role(self, name, attributes):

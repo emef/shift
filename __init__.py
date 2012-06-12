@@ -3,6 +3,7 @@ from django.shortcuts import render_to_response
 from django.http import HttpResponse, Http404
 from django.contrib.auth.decorators import login_required
 
+import re
 import simplejson as json
 
 def _choice_assoc_fn(x, choices, keyfn):
@@ -71,3 +72,18 @@ def admin_required(group=None):
         return _view
     
     return _dec
+
+height_inches = re.compile(r"(\d+')(\d+\")?")
+
+def from_measurement(measurement):
+    m = height_inches.match(measurement)
+    if m:
+        val = 0
+        for mval in m.groups():
+            if mval[-1] == '"':
+                val += int(mval[:-1])
+            elif mval[-1] == "'":
+                val += 12 * int(mval[:-1])
+        return val
+    else:
+        return measurement

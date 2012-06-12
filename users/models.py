@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from shift.shift_settings import INT_FIELD,FLOAT_FIELD,BOOL_FIELD,CHOICE_FIELD,CHAR_FIELD
-from shift import choice_assoc
+from shift import choice_assoc, choice_rassoc, from_measurement
 
 class Contractor(models.Model):
     user = models.OneToOneField(User)
@@ -48,6 +48,27 @@ class Attribute(models.Model):
     def choices(self):
         return eval(self.choices_str)
 
+    def type(self):
+        return choice_assoc(self.field_type, FIELD_TYPE_CHOICES)
+    
+    def mk_val(self, val):
+        attr_val = ContractorAttributeVal(attribute=self)
+        field_type = choice_assoc(self.field_type, FIELD_TYPE_CHOICES)
+        if field_type == INT_FIELD:
+            attr_val.int_val = int(from_measurement(val))
+        elif field_type == FLOAT_FIELD:
+            attr_val.float_val = float(from_measurement(val))
+        elif field_type == BOOL_FIELD:
+            attr_val.bool_val = (val.lower() == 'y')
+        elif field_type == CHOICE_FIELD:
+            attr_val.choice_val = choice_rassoc(val, self.choices)
+            if attr_val.choice_val == None:
+                raise ValueError('Invalid choice')
+        elif field_type == CHAR_FIELD:
+            attr_val.char_val = str(val)
+        return attr_val
+        
+
 class ContractorRole(models.Model):
     name = models.CharField(max_length=100)
     attributes = models.ManyToManyField('Attribute')
@@ -67,6 +88,21 @@ class ContractorAttributeVal(models.Model):
     @property
     def choices(self):
         return self.attribute.choices
+
+    def val(self):
+        t = self.attribute.type()
+        if t == INT_FIELD:
+            return self.int_val
+        elif t == FLOAT_FIELD:
+            return self.float_val
+        elif t == BOOL_FIELD:
+            return self.bool_val
+        elif t == CHOICE_FIELD:
+            return self.choice_val
+        elif t == CHAR_FIELD:
+            return self.char_val
+        else:
+            raise ValueError
     
     def __unicode__(self):
         fmt = '{0}={1}'

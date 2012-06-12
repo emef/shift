@@ -30,11 +30,28 @@
 <br />
 
 <h4>Candidates</h4>
-{% for candidate in candidates %}
-<div class="candidate">
-  {{ candidate.contractor }}
-</div>
-{% endfor %}
+<form method="POST" action="">
+  {% csrf_token %}
+  <table class="candidate-table">
+    <tr>
+      <th>Hire</th>
+      <th>Standby</th>
+      <th>Score</th>
+      <th>Contractor</th>
+    </tr>
+    {% for candidate in candidates %}
+    <tr>
+      <td><input type="radio" name="hire" value="{{candidate.contractor.id}}" /></td>
+      <td><input type="checkbox" name="standby" value="{{candidate.contractor.id}}" /></td>
+      <td>{{candidate.score}}%</td>
+      <td>{{candidate.contractor}}</td>
+    </tr>
+    {% endfor %}
+  </table>
+
+  <br />
+  <input type="submit" value="Submit Assignments" />
+</form>
 
 
 {% endblock main %}

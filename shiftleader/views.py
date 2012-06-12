@@ -47,7 +47,25 @@ def open_jobs_shift(request, shift_id):
     shift = get_object_or_404(Shift, id=shift_id)
     candidates = shift.candidates(settings.MAX_CANDIDATES)
     data = { 'shift': shift, 'candidates': candidates }
+    
+    if request.method == 'POST':
+        try:
+            hired = request.POST.get('hire', None)
+            standby = map(int, request.POST.getlist('standby'))
+        except KeyError, ValueError:
+            raise Http404
+
+        if hired == None:
+            data['error'] = 'You must choose a contractor to hire'
+        else:    
+            shift.contractor = Contractor.objects.get(id=hired)
+            shift.standby_contractors.bulk_create(Contractor.objects.filter(id__in=standby))
+            shift.save()
+            data['success'] = 1
+            
     return render_page(request, 'shiftleader/open_jobs_shift.html', data)
+
+        
 
 @admin_required('shiftleader')
 def contractors_search(request, query):

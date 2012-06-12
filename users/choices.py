@@ -74,7 +74,7 @@ _cup_sizes = ('AA', 'A', 'B', 'C', 'D', 'DD', 'E', 'EE', 'F', 'FF',
 CUP_SIZE_CHOICES = tuple(zip(range(1, len(_cup_sizes)), _cup_sizes))
 
 
-_jacket_sizes = range(32, 62, 2)
+_jacket_sizes = map(str, range(32, 62, 2))
 
 JACKET_SIZE_CHOICES = tuple(zip(range(1, len(_jacket_sizes)), _jacket_sizes))
 
