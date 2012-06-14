@@ -48,6 +48,8 @@ urlpatterns = patterns("",
 
     # url("^$", "mezzanine.blog.views.blog_post_list", name="home"),
 
+    url(r'^shift/confirm/(?P<uid>.+)/', 'shift.shiftleader.views.confirm_shift'),
+    url(r'^shift/unconfirm/(?P<uid>.+)/', 'shift.shiftleader.views.unconfirm_shift'),
     url(r'^client/', include('shift.client.urls')),
     url(r'^client-manager/', include('shift.clientmanager.urls')),
     url(r'^shift-leader/', include('shift.shiftleader.urls')),

@@ -7,6 +7,7 @@
 </script>
 {% endblock %}
 
+{% block meta_title %} {{page_info.title}} {% endblock %}
 {% block title %} {{page_info.title}} {% endblock %}
 
 {% block nav %}
@@ -43,8 +44,8 @@
       <li id="contractors_search-nav">
         <a href="/shift-leader/contractors/search/">Search Contractors</a>
       </li>
-      <li id="unassigned_jobs-nav">
-        <a href="/shift-leader/unassigned-jobs/">Unassigned Jobs</a>
+      <li id="pending_jobs-nav">
+        <a href="/shift-leader/pending-jobs/">Pending Jobs</a>
       </li>
       <li id="completed_jobs-nav">
         <a href="/shift-leader/completed-jobs/">Completed Jobs</a>

@@ -1,0 +1,40 @@
+{% extends "shiftleader/shiftleader_base.html" %}
+
+{% block main %}
+
+{% if confirmed|length %}
+<h3>Available Contractors</h3>
+<div>
+  <form method="POST">
+    {% csrf_token %}
+    <table class="candidate-table">
+      <tr>
+	<th>Hire</th>
+	<th>Standby</th>
+	<th>Contractor</th>
+      </tr>
+      {% for contractor in confirmed %}
+      <tr>
+	<td><input type="radio" name="hire" value="{{contractor.id}}" /></td>
+	<td><input type="checkbox" name="standby" value="{{contractor.id}}" /></td>
+	<td>{{contractor}}</td>
+      </tr>
+      {% endfor %}
+    </table>
+    <div>
+      <input type="submit" value="Assign Selected Contractor" />
+    </div>
+  </form>
+</div>
+{% endif %}
+
+{% if unknown|length %}
+<h3>Pending Response From:</h3>
+<table>
+  {% for contractor in unknown %}
+  <tr><td>{{contractor}}</td></tr>
+  {% endfor %}
+</table>
+{% endif %}
+
+{% endblock main %}

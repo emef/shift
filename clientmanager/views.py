@@ -44,8 +44,6 @@ def job_edit(request, job_id):
     existing_shifts = [{'title': s.title,
                         'form': ShiftForm(instance=s),
                         'roles': mk_role_forms(s)} for s in job.shifts.all()]
-
-    # INCORPORATE EXISTING SHIFT DATA
     
     data = {'job_title': job.title,
             'job_form': job_form,
@@ -62,7 +60,7 @@ def ajax_job_edit(request, job_id):
     json = simplejson.loads(request.POST['json'])
     job = get_object_or_404(Job, pk=job_id)
     job_form = JobForm(json['basic'], instance=job)
-    job = job_form.save(commit=False)
+    job = job_form.save()
 
     existing = dict( (s.id, s) for s in job.shifts.all() )
     

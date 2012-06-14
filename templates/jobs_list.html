@@ -9,7 +9,7 @@
   <h3><a href="{{job_url}}{{item.job.id}}/">{{item.job}}</a></h3>
   <ul>
     {% for shift in item.shifts %}
-    <li> <a href="{{shift_url}}/{{shift.id}}/">{{shift}}</a> </li>
+    <li> <a href="{{shift_url}}{{shift.id}}/">{{shift}}</a> </li>
     {% endfor %}
   </ul>
 </div>
@@ -17,7 +17,7 @@
 
 {% else %}
 No jobs to display.
-{% endif %}
+{% endifnotequal %}
 
 {% endblock %}
 

@@ -1,0 +1,7 @@
+{% extends "shiftleader/shiftleader_base.html" %}
+
+{% block main %}
+
+{{ unknown }}
+
+{% endblock main %}

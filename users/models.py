@@ -125,11 +125,11 @@ class ContractorAttributeVal(models.Model):
     
 class Client(models.Model):
     user = models.OneToOneField(User)
-    manager = models.ForeignKey('Manager', null=True, related_name='clients')
+    manager = models.ForeignKey('Manager', null=True, blank=True, related_name='clients')
     group_name = models.CharField(max_length=250)
 
     def __unicode__(self):
-        return 'Client<%s %s>' % (self.user.first_name, self.user.last_name)
+        return '%s %s' % (self.user.first_name, self.user.last_name)
     
 class ClientContactInfo(models.Model):
     client = models.ForeignKey('Client', related_name='contacts')

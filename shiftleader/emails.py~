@@ -1,0 +1,25 @@
+from django.core.mail import EmailMessage
+
+_ABSOLUTE_DOMAIN = 'http://shift.ttforbes.com'
+
+def send_confirmation_email(assignment):
+    html = '''Please confirm your availability for the following shift:
+Title: {title}
+Role: {role}
+Starts: {starts}
+Ends: {ends}
+Pays: {pays}
+Location: {location}
+
+<a href='{confirm_url}'>Yes, I can make this shift</a>
+<a href='{unconfirm_url}'>No, I can not make this shift</a>
+
+Thanks,
+ShiftTalent'''.format({
+            'title': shift.title,
+            'role': shift.role,
+            'starts': shift.start,
+            'ends': shift.end,
+            'location': shift.address,
+            'confirm_url': 'http://{0}/shift/confirm/{1}/
+    })

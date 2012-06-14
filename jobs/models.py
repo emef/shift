@@ -1,10 +1,13 @@
 from django.db import models
 from django.contrib.auth.models import User
-from shift.users.models import Contractor, ContractorRole
+from shift.users.models import Contractor, ContractorRole, Client
 from shift.shift_settings import attr_info, attr_weight
-from shift import choice_assoc
+from shift import choice_assoc, choice_rassoc
 
 from shift.shift_settings import CHAR_FIELD,INT_FIELD,FLOAT_FIELD,BOOL_FIELD,CHOICE_FIELD
+
+import random
+import hashlib
 
 BOOL_MAP = {
     2: True,
@@ -13,20 +16,30 @@ BOOL_MAP = {
 
 JOB_OPEN = 'open'
 JOB_PENDING = 'pending'
-JOB_IN_PROGRESS = 'in progress'
+JOB_ASSIGNED = 'assigned'
 JOB_COMPLETED = 'completed'
 JOB_FINALIZED = 'finalized'
 
 JOB_STATUS_CHOICES = (
     (1, JOB_OPEN),
     (2, JOB_PENDING),
-    (3, JOB_IN_PROGRESS),
+    (3, JOB_ASSIGNED),
     (4, JOB_COMPLETED),
     (5, JOB_FINALIZED)
 )
 
+SHIFT_OPEN = 'open'
+SHIFT_PENDING = 'pending'
+SHIFT_ASSIGNED = 'assigned'
+
+SHIFT_STATUS_CHOICES = (
+    (1, SHIFT_OPEN),
+    (2, SHIFT_PENDING),
+    (3, SHIFT_ASSIGNED),
+)
+
 class Job(models.Model):
-    client = models.ForeignKey(User)
+    client = models.ForeignKey(Client)
     title = models.CharField(max_length=150)
     description = models.TextField()
     amount_quoted = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
@@ -37,7 +50,12 @@ class Job(models.Model):
         return self.title
 
     def open_shifts(self):
-        return filter(lambda u: not u.is_assigned, self.shifts.all())
+        open_int = choice_rassoc(SHIFT_OPEN, SHIFT_STATUS_CHOICES)
+        return filter(lambda s: s.status == open_int, self.shifts.all())
+
+    def pending_shifts(self):
+        pending_int = choice_rassoc(SHIFT_PENDING, SHIFT_STATUS_CHOICES)
+        return filter(lambda s: s.status == pending_int, self.shifts.all())
     
 class JobFile(models.Model):
     job = models.ForeignKey('Job', related_name='files')
@@ -52,7 +70,8 @@ class Shift(models.Model):
     start = models.DateTimeField()
     end = models.DateTimeField()
     pays = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
-    address = models.CharField(max_length=100, null=True, blank=True)
+    location = models.CharField(max_length=100, null=True)
+    status = models.IntegerField(choices=SHIFT_STATUS_CHOICES, default=1)
     
     def __unicode__(self):
         return self.title
@@ -65,11 +84,13 @@ class Shift(models.Model):
         score = 0
         attrs = dict((a.attribute.field_name, a) for a in contractor.attributes.all())
         fs = list(self.filters.all())
+        mass = 0
         for f in fs:
+            mass += attr_weight(f.field_name)
             if f.field_name in attrs and f.satisfied(attrs[f.field_name].val()):
                 score += attr_weight(f.field_name)
-        if len(fs):
-            return (100*score) / len(fs)
+        if mass:
+            return (100*score) / mass
         else:
             return 100
     
@@ -153,6 +174,19 @@ class Shift(models.Model):
             
         self.save()
         return errors
+
+class ShiftOffer(models.Model):
+    shift = models.ForeignKey('Shift', related_name='offers')
+    contractor = models.ForeignKey(Contractor, related_name='offers')
+    confirmed = models.NullBooleanField()
+    uid = models.CharField(max_length=40)
+
+    def __init__(self, *args, **kwargs):
+        super(ShiftOffer, self).__init__(*args, **kwargs)
+        if not self.uid:
+            self.uid = hashlib.sha1(str(random.random())).hexdigest()
+
+        
     
 class ShiftFilter(models.Model):
     shift = models.ForeignKey('Shift', related_name='filters')
@@ -227,13 +261,6 @@ class ShiftFilter(models.Model):
         else:
             return fmt(val)
         
-
-class ShiftAssignment(models.Model):
-    contractor = models.ForeignKey(User)
-    shift = models.ForeignKey('Shift')
-    standby = models.BooleanField()
-    on_time = models.NullBooleanField()
-    
 
 
 

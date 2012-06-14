@@ -149,7 +149,6 @@ function save() {
 	dataType: 'json',
 	data: {json: JSON.stringify(data)},
 	success: function(r) {
-	    console.log(data);
 	    $('#errors').html('');
 	    $('#errors').children().remove();
 	    if (r.status == 'ok') {

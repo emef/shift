@@ -25,7 +25,7 @@ register_page('shiftleader', 'openjobs_list');
 register_page('shiftleader', 'openjobs_calendar');
 register_page('shiftleader', 'openjobs_gantt');
 register_page('shiftleader', 'contractors_search');
-register_page('shiftleader', 'unassigned_jobs');
+register_page('shiftleader', 'pending_jobs');
 register_page('shiftleader', 'completed_jobs');
 
 register_page('talentmanager');
